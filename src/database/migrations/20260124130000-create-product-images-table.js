@@ -1,8 +1,6 @@
-'use strict';
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('product_images', {
+    await queryInterface.createTable("product_images", {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -13,11 +11,11 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-            model: 'products',
-          key: 'id',
+          model: "products",
+          key: "id",
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       enabled: {
         type: Sequelize.BOOLEAN,
@@ -32,6 +30,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('product_images');
+    await queryInterface.dropTable("product_images");
   },
 };

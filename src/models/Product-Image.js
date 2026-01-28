@@ -1,11 +1,11 @@
-const { Model, DataTypes } = require('sequelize');
+const { Model, DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
   class ProductImage extends Model {
     static associate(models) {
       ProductImage.belongsTo(models.Product, {
-        foreignKey: 'product_id',
-        as: 'product',
+        foreignKey: "product_id",
+        as: "product",
       });
     }
   }
@@ -22,8 +22,8 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'Products',
-          key: 'id',
+          model: "Products",
+          key: "id",
         },
       },
       enabled: {
@@ -38,10 +38,10 @@ module.exports = (sequelize) => {
     },
     {
       sequelize,
-      modelName: 'ProductImage',
-      tableName: 'product_images',
+      modelName: "ProductImage",
+      tableName: "product_images",
       timestamps: false,
-    }
+    },
   );
 
   return ProductImage;
