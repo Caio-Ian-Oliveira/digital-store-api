@@ -20,20 +20,19 @@ const CreateUserService = require('../../core/services/create-user.service');
  *               - email
  *               - password
  *               - confirmPassword
- *               properties:
- *                 id:
- *                   type: string
- *                   format: uuid
- *                   example: deca6d22-1b83-4048-9a91-b86210596df7
- *                 firstname:
- *                   type: string
- *                   example: João
- *                 surname:
- *                   type: string
- *                   example: Silva
- *                 email:
- *                   type: string
- *                   example: joao@email.com
+ *             properties:
+ *               firstname:
+ *                 type: string
+ *                 example: João
+ *               surname:
+ *                 type: string
+ *                 example: Silva
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: joao@email.com
+ *               password:
+ *                 type: string
  *                 format: password
  *                 example: senha123
  *               confirmPassword:
@@ -50,7 +49,8 @@ const CreateUserService = require('../../core/services/create-user.service');
  *               properties:
  *                 id:
  *                   type: string
- *                   example: 1
+ *                   format: uuid
+ *                   example: deca6d22-1b83-4048-9a91-b86210596df7
  *                 firstname:
  *                   type: string
  *                   example: João
@@ -59,6 +59,7 @@ const CreateUserService = require('../../core/services/create-user.service');
  *                   example: Silva
  *                 email:
  *                   type: string
+ *                   format: email
  *                   example: joao@email.com
  *       400:
  *         description: Dados inválidos ou senhas não conferem
