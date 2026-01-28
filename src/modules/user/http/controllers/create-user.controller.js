@@ -1,5 +1,4 @@
-
-const CreateUserService = require('../../core/services/create-user.service');
+const CreateUserService = require("../../core/services/create-user.service");
 
 /**
  * @swagger

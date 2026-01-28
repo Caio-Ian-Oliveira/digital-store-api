@@ -1,4 +1,4 @@
-const { Model, DataTypes } = require('sequelize');
+const { Model, DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
   class ProductOption extends Model {}
@@ -15,30 +15,30 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'Products',
-          key: 'id',
+          model: "Products",
+          key: "id",
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       category_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'Categories',
-          key: 'id',
+          model: "Categories",
+          key: "id",
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       title: {
         type: DataTypes.STRING,
         allowNull: false,
       },
       shape: {
-        type: DataTypes.ENUM('square', 'circle'),
+        type: DataTypes.ENUM("square", "circle"),
         allowNull: true,
-        defaultValue: 'square',
+        defaultValue: "square",
       },
       radius: {
         type: DataTypes.INTEGER,
@@ -46,9 +46,9 @@ module.exports = (sequelize) => {
         defaultValue: 0,
       },
       type: {
-        type: DataTypes.ENUM('text', 'color'),
+        type: DataTypes.ENUM("text", "color"),
         allowNull: true,
-        defaultValue: 'text',
+        defaultValue: "text",
       },
       values: {
         type: DataTypes.STRING,
@@ -57,10 +57,10 @@ module.exports = (sequelize) => {
     },
     {
       sequelize,
-      modelName: 'ProductOption',
-      tableName: 'product_options',
+      modelName: "ProductOption",
+      tableName: "product_options",
       timestamps: false,
-    }
+    },
   );
 
   return ProductOption;

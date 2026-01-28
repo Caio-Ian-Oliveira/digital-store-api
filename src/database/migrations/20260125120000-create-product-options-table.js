@@ -1,8 +1,6 @@
-'use strict';
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('product_options', {
+    await queryInterface.createTable("product_options", {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -13,20 +11,20 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'products',
-          key: 'id',
+          model: "products",
+          key: "id",
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       title: {
         type: Sequelize.STRING,
         allowNull: false,
       },
       shape: {
-        type: Sequelize.ENUM('square', 'circle'),
+        type: Sequelize.ENUM("square", "circle"),
         allowNull: true,
-        defaultValue: 'square',
+        defaultValue: "square",
       },
       radius: {
         type: Sequelize.INTEGER,
@@ -34,9 +32,9 @@ module.exports = {
         defaultValue: 0,
       },
       type: {
-        type: Sequelize.ENUM('text', 'color'),
+        type: Sequelize.ENUM("text", "color"),
         allowNull: true,
-        defaultValue: 'text',
+        defaultValue: "text",
       },
       values: {
         type: Sequelize.STRING,
@@ -45,17 +43,17 @@ module.exports = {
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('product_options');
+    await queryInterface.dropTable("product_options");
   },
 };
