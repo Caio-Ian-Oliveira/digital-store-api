@@ -14,6 +14,8 @@ const createUserSchema = z
     confirmPassword: z
       .string({ required_error: "Confirm password is required" })
       .min(6, "Confirm password is required"),
+
+    // Não incluir 'role' no schema para impedir que o cliente envie esse campo
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",

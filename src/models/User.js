@@ -34,6 +34,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      // Segurança: role não pode ser definida pelo cliente no signup público
+      role: {
+        type: DataTypes.ENUM("USER", "ADMIN"),
+        allowNull: false,
+        defaultValue: "USER",
+      },
     },
     {
       sequelize,

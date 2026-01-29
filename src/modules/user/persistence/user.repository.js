@@ -1,8 +1,9 @@
 const { User } = require("../../../models");
 
 class UserRepository {
+  // Segurança: sempre define role como 'USER' no cadastro público, ignorando qualquer valor do cliente
   async create({ firstname, surname, email, password }) {
-    const user = await User.create({ firstname, surname, email, password });
+    const user = await User.create({ firstname, surname, email, password, role: "USER" });
     return user;
   }
 
