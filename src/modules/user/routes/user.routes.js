@@ -13,6 +13,6 @@ const router = express.Router();
 router.post("/v1/user/login", loginValidator, loginController.handle);
 router.post("/v1/user", createUserValidator, createUserController.handle);
 router.get("/v1/user/:id", authVerificationMiddleware, getUserByIdController.handle);
-router.put("/v1/user/:id", authVerificationMiddleware, updateUserValidator, updateUserController.handle);
+router.patch("/v1/user/:id", authVerificationMiddleware, updateUserValidator, updateUserController.handle);
 
 module.exports = router;
