@@ -7,13 +7,20 @@ class UserRepository {
     return user;
   }
 
-  async findById(userId) {
-    const user = await User.findByPk(userId);
+  async findById(targetUserId) {
+    const user = await User.findByPk(targetUserId, {
+      where: { deleted_at: null }
+    });
     return user;
   }
 
   async findByEmail(email) {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({
+      where: {
+        email,
+        deleted_at: null
+      }
+    });
     return user;
   }
 
@@ -28,8 +35,17 @@ class UserRepository {
     }
     const [updated] = await User.update(filteredData, { where: { id: targetUserId } });
     if (!updated) return null;
-    return await User.findByPk(targetUserId);
+    return await this.findById(targetUserId);
   }
+
+  async softDelete(targetUserId) {
+    const [updated] = await User.update(
+      { deleted_at: new Date() },
+      { where: { id: targetUserId, deleted_at: null } }
+    );
+    return updated > 0;
+  }
+
 }
 
 module.exports = new UserRepository();

@@ -8,6 +8,10 @@ class CreateUserService {
       throw new Error("Passwords do not match");
     }
     // Não passe 'role' do body, será sempre USER no repository
+    const userExists = await userRepository.findByEmail(email);
+    if (userExists) {
+      throw new Error("Este usuário já está cadastrado.");
+    }
     const user = await userRepository.create({ firstname, surname, email, password });
     const response = CreateUserResponseDTO.parse({ user });
     return response;
