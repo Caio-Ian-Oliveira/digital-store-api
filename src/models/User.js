@@ -40,6 +40,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: "USER",
       },
+      deleted_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
     },
     {
       sequelize,
@@ -47,6 +51,7 @@ module.exports = (sequelize, DataTypes) => {
       tableName: "users",
       timestamps: true,
       underscored: true,
+      paranoid: true,
       hooks: {
         beforeSave: async (user) => {
           if (user.changed("password")) {
