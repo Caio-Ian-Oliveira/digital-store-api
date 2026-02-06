@@ -1,7 +1,9 @@
+const { DataTypes } = require("sequelize");
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.addColumn("product_options", "category_id", {
-      type: Sequelize.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: "categories",

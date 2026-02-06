@@ -2,15 +2,15 @@ const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class Category extends Model {
-    static associate(models) {}
+    static associate(_models) {}
   }
 
   Category.init(
     {
       id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
-        autoIncrement: true,
         allowNull: false,
       },
       name: {
@@ -23,8 +23,8 @@ module.exports = (sequelize, DataTypes) => {
       },
       use_in_menu: {
         type: DataTypes.BOOLEAN,
-        allowNull: true, // preenchimento opcional
-        defaultValue: 0, // valor padrão 0 (false)
+        allowNull: true,
+        defaultValue: 0,
       },
     },
     {
