@@ -1,4 +1,4 @@
-// Setup que roda após o ambiente de teste estar pronto
+// Setup que roda após o ambiente 'de teste estar pronto
 // Fecha a conexão com o banco após todos os testes
 
 afterAll(async () => {
