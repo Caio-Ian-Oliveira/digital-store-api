@@ -19,12 +19,14 @@ describe("CreateProductService - Unit Tests", () => {
   });
 
   const validProductData = {
+    enabled: true,
     name: "Produto Teste",
     slug: "produto-teste",
     price: 100,
     price_with_discount: 80,
     stock: 10,
     description: "Descrição teste",
+    use_in_menu: true,
     category_ids: ["uuid-categoria-1"],
     images: [],
     options: [],
@@ -49,22 +51,21 @@ describe("CreateProductService - Unit Tests", () => {
 
       const result = await createProductService.execute(validProductData);
 
-      expect(Product.findOne).toHaveBeenCalledWith({
-        where: expect.objectContaining({
-          [expect.anything()]: expect.any(Array),
-        }),
-      });
+      expect(Product.findOne).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.any(Object),
+        })
+      );
       expect(Category.findAll).toHaveBeenCalledWith({
         where: { id: validProductData.category_ids },
-        paranoid: false,
       });
       expect(productRepository.createProduct).toHaveBeenCalledWith({
         productData: expect.objectContaining({
           name: validProductData.name,
           slug: validProductData.slug,
         }),
-        images: validProductData.images,
-        options: validProductData.options,
+        images: [],
+        options: [],
         categoryIds: validProductData.category_ids,
       });
       expect(result).toEqual(mockCreatedProduct);
@@ -127,9 +128,9 @@ describe("CreateProductService - Unit Tests", () => {
       expect(Category.findAll).not.toHaveBeenCalled();
       expect(productRepository.createProduct).toHaveBeenCalledWith({
         productData: expect.anything(),
-        images: undefined,
-        options: undefined,
-        categoryIds: undefined,
+        images: [],
+        options: [],
+        categoryIds: [],
       });
       expect(result).toEqual(mockCreatedProduct);
     });

@@ -22,7 +22,7 @@ class UploadImageController {
       const result = await UploadImageService.execute({ type, content });
       return res.status(200).json(UploadImageResponseDto.toResponse(result));
     } catch (error) {
-      console.error("UploadImageController error:", error);
+
       return res.status(400).json({ error: error.message || "Erro ao fazer upload da imagem" });
     }
   }

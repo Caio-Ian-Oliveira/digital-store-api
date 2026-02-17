@@ -4,15 +4,6 @@ const { generateToken } = require("../../../../src/shared/auth/jwt");
 const { Product, Category, ProductImage, ProductOption, sequelize } = require("../../../../src/models");
 const productRoutes = require("../../../../src/modules/product/routes/product.routes");
 
-// Mock do Cloudinary para evitar uploads reais nos testes
-jest.mock("../../../../src/config/cloudinary.config", () => ({
-  uploader: {
-    upload: jest.fn().mockResolvedValue({
-      secure_url: "https://res.cloudinary.com/test/image/upload/v1/test.jpg",
-    }),
-  },
-}));
-
 // Setup da aplicação Express para o teste
 const app = express();
 app.use(express.json());
@@ -42,12 +33,15 @@ describe("Create Product - Integration Tests", () => {
   });
 
   afterEach(async () => {
-    await sequelize.query("SET FOREIGN_KEY_CHECKS = 0", { raw: true });
-    await ProductOption.destroy({ where: {}, truncate: true, force: true });
-    await ProductImage.destroy({ where: {}, truncate: true, force: true });
-    await Product.destroy({ where: {}, truncate: true, force: true });
-    await Category.destroy({ where: {}, truncate: true, force: true });
-    await sequelize.query("SET FOREIGN_KEY_CHECKS = 1", { raw: true });
+    try {
+      // Força a recriação das tabelas para garantir estado limpo e IDs resetados
+      await sequelize.query("SET FOREIGN_KEY_CHECKS = 0", { raw: true });
+      await sequelize.sync({ force: true });
+      await sequelize.query("SET FOREIGN_KEY_CHECKS = 1", { raw: true });
+    } catch (error) {
+      console.error("Erro no cleanup:", error);
+      throw error;
+    }
   });
 
   afterAll(async () => {
@@ -111,7 +105,7 @@ describe("Create Product - Integration Tests", () => {
     expect(productInDb).not.toBeNull();
   });
 
-  it("POST /v1/product - Deve criar produto mínimo com sucesso (ADMIN)", async () => {
+  it("POST /v1/product - Deve criar produto mínimo com sucesso e aplicar defaults (ADMIN)", async () => {
     const token = generateToken(adminPayload);
 
     const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(validProductMinimal);
@@ -119,47 +113,48 @@ describe("Create Product - Integration Tests", () => {
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty("id");
     expect(response.body.name).toBe(validProductMinimal.name);
+    expect(response.body.price).toBe(validProductMinimal.price);
+    
+    // Verificando defaults
+    expect(response.body.enabled).toBe(false);
+    expect(response.body.use_in_menu).toBe(false);
+    expect(response.body.stock).toBe(0);
     expect(response.body.images).toEqual([]);
     expect(response.body.options).toEqual([]);
     expect(response.body.category_ids).toEqual([]);
   });
 
-  it("POST /v1/product - Deve criar produto sem images com sucesso (ADMIN)", async () => {
+  // ============ FALHAS DE VALIDAÇÃO (CAMPOS OBRIGATÓRIOS) ============
+  // Apenas name, slug e price são obrigatórios agora. 
+  // enabled, stock, etc são opcionais com default.
+
+  it("POST /v1/product - Deve retornar 400 se faltar campo 'name'", async () => {
     const token = generateToken(adminPayload);
-    const payload = { ...validProductComplete, images: [], category_ids: [testCategory.id] };
+    const invalidData = { slug: "test", price: 100 };
 
-    const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(payload);
+    const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(invalidData);
 
-    expect(response.status).toBe(201);
-    expect(response.body.images).toEqual([]);
+    expect(response.status).toBe(400);
+    expect(response.body.errors).toEqual(expect.arrayContaining([expect.objectContaining({ field: "name" })]));
   });
 
-  it("POST /v1/product - Deve criar produto sem options com sucesso (ADMIN)", async () => {
+  it("POST /v1/product - Deve retornar 400 se faltar campo 'price'", async () => {
     const token = generateToken(adminPayload);
-    const payload = { ...validProductComplete, options: [], category_ids: [testCategory.id] };
+    const invalidData = { name: "Test", slug: "test" };
 
-    const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(payload);
+    const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(invalidData);
 
-    expect(response.status).toBe(201);
-    expect(response.body.options).toEqual([]);
-  });
-
-  it("POST /v1/product - Deve criar produto sem categories com sucesso (ADMIN)", async () => {
-    const token = generateToken(adminPayload);
-    const payload = { ...validProductComplete, category_ids: [] };
-
-    const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(payload);
-
-    expect(response.status).toBe(201);
-    expect(response.body.category_ids).toEqual([]);
+    expect(response.status).toBe(400);
+    expect(response.body.errors).toEqual(expect.arrayContaining([expect.objectContaining({ field: "price" })]));
   });
 
   // ============ AUTENTICAÇÃO / AUTORIZAÇÃO ============
 
   it("POST /v1/product - Deve retornar 403 se o usuário não for ADMIN", async () => {
     const token = generateToken(userPayload);
+    const payload = { ...validProductComplete, category_ids: [testCategory.id] };
 
-    const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(validProductMinimal);
+    const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(payload);
 
     expect(response.status).toBe(403);
     expect(response.body).toHaveProperty("error");
@@ -169,7 +164,8 @@ describe("Create Product - Integration Tests", () => {
   });
 
   it("POST /v1/product - Deve retornar 401 se não enviar token", async () => {
-    const response = await request(app).post("/v1/product").send(validProductMinimal);
+    // Payload qualquer, já que vai falhar no token
+    const response = await request(app).post("/v1/product").send(validProductComplete);
 
     expect(response.status).toBe(401);
   });
@@ -189,7 +185,7 @@ describe("Create Product - Integration Tests", () => {
 
   it("POST /v1/product - Deve retornar 400 se stock for negativo", async () => {
     const token = generateToken(adminPayload);
-    const invalidData = { ...validProductMinimal, stock: -5 };
+    const invalidData = { ...validProductComplete, stock: -5, category_ids: [testCategory.id] };
 
     const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(invalidData);
 
@@ -202,7 +198,7 @@ describe("Create Product - Integration Tests", () => {
 
   it("POST /v1/product - Deve retornar 400 se price_with_discount > price", async () => {
     const token = generateToken(adminPayload);
-    const invalidData = { ...validProductMinimal, price: 50, price_with_discount: 100 };
+    const invalidData = { ...validProductComplete, price: 50, price_with_discount: 100, category_ids: [testCategory.id] };
 
     const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(invalidData);
 
@@ -215,10 +211,13 @@ describe("Create Product - Integration Tests", () => {
 
   it("POST /v1/product - Deve retornar 400 se slug já existir (duplicado)", async () => {
     const token = generateToken(adminPayload);
+    const payload = { ...validProductComplete, category_ids: [testCategory.id] };
 
-    await Product.create(validProductMinimal);
+    // Cria o primeiro produto
+    await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(payload);
 
-    const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(validProductMinimal);
+    // Tenta criar o segundo com mesmo slug
+    const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(payload);
 
     expect(response.status).toBe(400);
     expect(response.body.error).toMatch(/já existe/i);
@@ -226,10 +225,13 @@ describe("Create Product - Integration Tests", () => {
 
   it("POST /v1/product - Deve retornar 400 se name já existir (duplicado)", async () => {
     const token = generateToken(adminPayload);
+    const payload = { ...validProductComplete, category_ids: [testCategory.id] };
 
-    await Product.create(validProductMinimal);
+    // Cria o primeiro produto
+    await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(payload);
 
-    const duplicateNameData = { ...validProductMinimal, slug: "outro-slug" };
+    // Tenta criar o segundo com mesmo nome (mesmo que slug mude)
+    const duplicateNameData = { ...payload, slug: "outro-slug" };
     const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(duplicateNameData);
 
     expect(response.status).toBe(400);
@@ -238,7 +240,7 @@ describe("Create Product - Integration Tests", () => {
 
   it("POST /v1/product - Deve retornar 400 se category_ids contiver UUID inválido (não existe)", async () => {
     const token = generateToken(adminPayload);
-    const invalidData = { ...validProductMinimal, category_ids: ["00000000-0000-0000-0000-000000000000"] };
+    const invalidData = { ...validProductComplete, category_ids: ["00000000-0000-0000-0000-000000000000"] };
 
     const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(invalidData);
 
@@ -248,7 +250,7 @@ describe("Create Product - Integration Tests", () => {
 
   it("POST /v1/product - Deve retornar 400 se category_ids contiver UUID malformado", async () => {
     const token = generateToken(adminPayload);
-    const invalidData = { ...validProductMinimal, category_ids: ["not-a-uuid"] };
+    const invalidData = { ...validProductComplete, category_ids: ["not-a-uuid"] };
 
     const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(invalidData);
 
@@ -256,11 +258,37 @@ describe("Create Product - Integration Tests", () => {
     expect(response.body).toHaveProperty("errors");
   });
 
+  it("POST /v1/product - Deve retornar 400 se images[].content não for URL válida", async () => {
+    const token = generateToken(adminPayload);
+    const invalidData = {
+      ...validProductComplete,
+      category_ids: [testCategory.id],
+      images: [
+        {
+          type: "image/png",
+          content: "iVBORw0KGgoAAAANSUhEUgAAAAUA", // base64 ao invés de URL
+        },
+      ],
+    };
+
+    const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(invalidData);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty("errors");
+    expect(response.body.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: expect.stringContaining("URL"),
+        }),
+      ])
+    );
+  });
+
   // ============ TENTATIVAS MALICIOSAS ============
 
   it("POST /v1/product - Deve retornar 400 se enviar campos extras (malicious)", async () => {
     const token = generateToken(adminPayload);
-    const maliciousData = { ...validProductMinimal, is_admin: true, role: "SUPERUSER" };
+    const maliciousData = { ...validProductComplete, category_ids: [testCategory.id], is_admin: true, role: "SUPERUSER" };
 
     const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(maliciousData);
 
@@ -271,7 +299,8 @@ describe("Create Product - Integration Tests", () => {
   it("POST /v1/product - Deve retornar 400 se enviar enum inválido (shape)", async () => {
     const token = generateToken(adminPayload);
     const invalidData = {
-      ...validProductMinimal,
+      ...validProductComplete,
+      category_ids: [testCategory.id],
       options: [{ title: "Test", shape: "triangle", type: "text", values: ["A"] }],
     };
 

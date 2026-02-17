@@ -42,8 +42,6 @@ class ProductRepository {
         await createdProduct.setCategories(categoryIds, { transaction });
       }
 
-      await transaction.commit();
-
       // 5. Retorna o produto completo com relações
       const fullProduct = await Product.findByPk(createdProduct.id, {
         include: [
@@ -51,7 +49,10 @@ class ProductRepository {
           { model: ProductOption, as: "options" },
           { model: Category, as: "categories", attributes: ["id"] },
         ],
+        transaction, // Garante que lê da transação atual
       });
+
+      await transaction.commit();
 
       return fullProduct;
     } catch (error) {

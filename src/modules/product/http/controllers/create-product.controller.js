@@ -8,7 +8,7 @@ class CreateProductController {
             const createdProduct = await CreateProductService.execute(body);
             return res.status(201).json(CreateProductResponseDto.toResponse(createdProduct));
         } catch (error) {
-            console.error("CreateProductController error:", error);
+
             return res.status(400).json({ error: error.message || "Erro ao criar produto" });
         }
     }

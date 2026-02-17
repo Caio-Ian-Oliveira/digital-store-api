@@ -27,23 +27,29 @@ const optionSchema = z
 // Schema principal de criação de produto
 const createProductSchema = z
   .object({
-    enabled: z.boolean().optional(),
+    enabled: z.boolean().default(false),
     name: z.string({ required_error: "Name is required" }).min(1, "Name is required"),
     slug: z.string({ required_error: "Slug is required" }).min(1, "Slug is required"),
-    use_in_menu: z.boolean().optional(),
-    stock: z.number().int().min(0, "Stock cannot be negative").optional(),
+    use_in_menu: z.boolean().default(false),
+    stock: z.number().int().min(0, "Stock cannot be negative").default(0),
     description: z.string().optional(),
     price: z.number({ required_error: "Price is required" }).positive("Price must be positive"),
-    price_with_discount: z.number({ required_error: "Price with discount is required" }).positive("Price with discount must be positive"),
-    category_ids: z.array(z.string().uuid("Each category_id must be a valid UUID")).optional(),
-    images: z.array(imageSchema).optional(),
-    options: z.array(optionSchema).optional(),
+    price_with_discount: z.number().positive("Price with discount must be positive").optional(),
+    category_ids: z.array(z.string().uuid("Each category_id must be a valid UUID")).default([]),
+    images: z.array(imageSchema).default([]),
+    options: z.array(optionSchema).default([]),
   })
   .strict()
-  .refine((data) => data.price_with_discount <= data.price, {
-    message: "Price with discount must be less than or equal to price",
-    path: ["price_with_discount"],
-  });
+  .refine(
+    (data) => {
+      if (!data.price_with_discount) return true;
+      return data.price_with_discount <= data.price;
+    },
+    {
+      message: "Price with discount must be less than or equal to price",
+      path: ["price_with_discount"],
+    },
+  );
 
 // Middleware para usar na rota
 const createProductValidator = (req, res, next) => {
