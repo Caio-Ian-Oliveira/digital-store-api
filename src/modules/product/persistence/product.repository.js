@@ -1,4 +1,4 @@
-const { Product, ProductImage, ProductOption, Category, sequelize } = require("../../../models/");
+const { Product, ProductImage, ProductOption, Category, sequelize, Sequelize } = require("../../../models/");
 const { processImage } = require("../../../shared/utils/image.utils");
 
 class ProductRepository {
@@ -59,6 +59,123 @@ class ProductRepository {
       await transaction.rollback();
       throw error;
     }
+  }
+  async listProducts({ limit, page, fields, match, category_ids, priceRange, option } = {}) {
+    const queryOptions = {
+      where: {},
+      include: [],
+      distinct: true, // Importante para contar produtos corretamente com includes many-to-many
+    };
+
+    // 1. Paginação
+    const safeLimit = parseInt(limit, 10) || 12;
+    const safePage = parseInt(page, 10) || 1;
+
+    if (safeLimit !== -1) {
+      queryOptions.limit = safeLimit;
+      queryOptions.offset = (Math.max(safePage, 1) - 1) * safeLimit;
+    }
+
+    // 2. Projeção (fields)
+    queryOptions.attributes = ["id", "name", "slug", "price", "price_with_discount", "description", "enabled", "stock", "use_in_menu"]; // Default attributes
+    if (fields) {
+      const requestedFields = fields.split(",").map((f) => f.trim());
+      // Garante que ID sempre venha para montar as relações se necessário, ou lógica de frontend
+      if (!requestedFields.includes("id")) requestedFields.unshift("id");
+      queryOptions.attributes = requestedFields;
+    }
+
+    // 3. Filtros
+    // 3.1 Match (nome ou descrição)
+    if (match) {
+      queryOptions.where[Sequelize.Op.or] = [
+        { name: { [Sequelize.Op.like]: `%${match}%` } },
+        { description: { [Sequelize.Op.like]: `%${match}%` } },
+      ];
+    }
+
+    // 3.2 Category IDs
+    if (category_ids) {
+      const ids = category_ids.split(",").map((id) => id.trim());
+      queryOptions.include.push({
+        model: Category,
+        as: "categories",
+        where: { id: { [Sequelize.Op.in]: ids } },
+        attributes: ["id", "name", "slug"],
+        through: { attributes: [] }, // Não trazer dados da tabela pivo
+      });
+    } else {
+      // Se não filtrar, ainda pode querer trazer as categorias? 
+      // O padrão REST costuma trazer relacionamentos apenas se solicitado ou by default.
+      // Vamos trazer para ficar completo, mas sem filtro WHERE.
+       queryOptions.include.push({
+        model: Category,
+        as: "categories",
+        attributes: ["id", "name", "slug"],
+        through: { attributes: [] },
+      });
+    }
+
+    // 3.3 Price Range
+    if (priceRange) {
+      const [min, max] = priceRange.split("-").map(Number);
+      if (!isNaN(min) && !isNaN(max)) {
+        queryOptions.where.price = { [Sequelize.Op.between]: [min, max] };
+      }
+    }
+
+    // 3.4 Options
+    // Ex: option[45]=GG,PP -> option ID 45, values "GG" OR "PP"
+    // Como os values são salvos como string JSON '["GG", "PP"]', usamos LIKE.
+    if (option) {
+      const optionConditions = [];
+      
+      for (const [optionId, valuesString] of Object.entries(option)) {
+        const values = valuesString.split(",");
+        const valueConditions = values.map((val) => ({
+             values: { [Sequelize.Op.like]: `%${val}%` }
+        }));
+
+        optionConditions.push({
+          id: optionId,
+          [Sequelize.Op.or]: valueConditions
+        });
+      }
+
+      if (optionConditions.length > 0) {
+        queryOptions.include.push({
+          model: ProductOption,
+          as: "options",
+          where: {
+            [Sequelize.Op.and]: optionConditions
+          },
+            attributes: ["id", "title", "values"]
+        });
+      }
+    } else {
+         // Inclui options mesmo sem filtro para retorno rico
+         queryOptions.include.push({
+            model: ProductOption,
+            as: "options",
+            attributes: ["id", "title", "values", "shape", "radius", "type"]
+        });
+    }
+    
+    // Sempre incluir imagens
+    queryOptions.include.push({
+        model: ProductImage,
+        as: "images",
+        attributes: ["id", "path", "enabled"]
+    });
+
+    const { count, rows } = await Product.findAndCountAll(queryOptions);
+
+    return {
+      data: rows,
+      total: count,
+      limit: safeLimit,
+      page: safePage,
+    };
   }
 }
 

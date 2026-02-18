@@ -6,9 +6,12 @@ const roleGuardMiddleware = require("../../../shared/middlewares/role-guard.midd
 const { upload } = require("../../../shared/middlewares/upload.middleware");
 const { createProductValidator } = require("../http/validators/create-product.validator");
 const { uploadImageValidator } = require("../http/validators/upload-image.validator");
+const ListProductsController = require("../http/controllers/list-products.controller")
+const { listProductsValidator } = require("../http/validators/list-products.validator");
 const router = express.Router();
 
 router.post("/v1/product", authVerificationMiddleware, roleGuardMiddleware.handle(["ADMIN"]), createProductValidator, CreateProductController.handle);
 router.post("/v1/product/upload-image", authVerificationMiddleware, roleGuardMiddleware.handle(["ADMIN"]), upload.single("image"), uploadImageValidator, UploadImageController.handle);
+router.get("/v1/product/list-products", listProductsValidator, ListProductsController.handle);
 
 module.exports = router;
