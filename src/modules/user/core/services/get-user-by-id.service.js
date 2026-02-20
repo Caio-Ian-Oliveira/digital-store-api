@@ -1,3 +1,4 @@
+const AppError = require("../../../../shared/errors/AppError");
 const userRepository = require("../../persistence/user.repository");
 
 class GetUserByIdService {
@@ -11,7 +12,7 @@ class GetUserByIdService {
     if (loggedUser.role === "ADMIN") {
       const user = await userRepository.findById(targetUserId);
       if (!user) {
-        throw new Error("Acesso negado ou recurso não disponível.");
+        throw new AppError("Acesso negado ou recurso não disponível.", 404);
       }
       return user;
     }
@@ -20,13 +21,13 @@ class GetUserByIdService {
     if (String(loggedUser.sub) === String(targetUserId)) {
       const user = await userRepository.findById(targetUserId);
       if (!user) {
-        throw new Error("Acesso negado ou recurso não disponível.");
+        throw new AppError("Acesso negado ou recurso não disponível.", 404);
       }
       return user;
     }
 
     // Qualquer outro caso: acesso negado
-    throw new Error("Acesso negado ou recurso não disponível.");
+    throw new AppError("Acesso negado ou recurso não disponível.", 403);
   }
 }
 

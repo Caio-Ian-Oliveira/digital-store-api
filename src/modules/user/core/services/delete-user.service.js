@@ -1,3 +1,4 @@
+const AppError = require("../../../../shared/errors/AppError");
 const userRepository = require("../../persistence/user.repository");
 
 class DeleteUserService {
@@ -5,12 +6,12 @@ class DeleteUserService {
         // Admin pode deletar qualquer usuário, exceto a si mesmo
         if (loggedUser.role === "ADMIN") {
             if (String(loggedUser.sub) === String(targetUserId)) {
-                throw new Error("Acesso negado ou recurso não disponível.");
+                throw new AppError("Acesso negado ou recurso não disponível.", 403);
             }
 
             const deleted = await userRepository.softDelete(targetUserId);
             if (!deleted) {
-                throw new Error("Acesso negado ou recurso não disponível.");
+                throw new AppError("Acesso negado ou recurso não disponível.", 404);
             }
 
             return { message: "Usuário deletado com sucesso." };
@@ -20,13 +21,13 @@ class DeleteUserService {
         if (String(loggedUser.sub) === String(targetUserId)) {
             const deleted = await userRepository.softDelete(targetUserId);
             if (!deleted) {
-                throw new Error("Acesso negado ou recurso não disponível.");
+                throw new AppError("Acesso negado ou recurso não disponível.", 404);
             }
             return { message: "Usuário deletado com sucesso." };
         }
 
         // Qualquer outro caso: acesso negado
-        throw new Error("Acesso negado ou recurso não disponível.");
+        throw new AppError("Acesso negado ou recurso não disponível.", 403);
     }
 }
 

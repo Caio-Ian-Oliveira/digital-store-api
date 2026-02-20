@@ -9,11 +9,12 @@ const { createUserValidator } = require("../http/validators/create-user.validato
 const authVerificationMiddleware = require("../../../shared/auth/auth-verification.middleware");
 const { loginValidator } = require("../http/validators/login.validator");
 const { updateUserValidator } = require("../http/validators/update-user.validator");
+const asyncHandler = require("../../../shared/middlewares/async-handler.middleware");
 const router = express.Router();
 
-router.post("/v1/user/login", loginValidator, LoginController.handle);
-router.post("/v1/user", createUserValidator, createUserController.handle);
-router.get("/v1/user/:id", authVerificationMiddleware, GetUserByIdController.handle);
-router.patch("/v1/user/:id", authVerificationMiddleware, updateUserValidator, UpdateUserController.handle);
-router.delete("/v1/user/:id", authVerificationMiddleware, DeleteUserController.handle);
+router.post("/v1/user/login", loginValidator, asyncHandler(LoginController.handle));
+router.post("/v1/user", createUserValidator, asyncHandler(createUserController.handle));
+router.get("/v1/user/:id", authVerificationMiddleware, asyncHandler(GetUserByIdController.handle));
+router.patch("/v1/user/:id", authVerificationMiddleware, updateUserValidator, asyncHandler(UpdateUserController.handle));
+router.delete("/v1/user/:id", authVerificationMiddleware, asyncHandler(DeleteUserController.handle));
 module.exports = router;

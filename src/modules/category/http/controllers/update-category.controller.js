@@ -71,15 +71,11 @@ const UpdateCategoryResponseDto = require("../dto/response/update-category.respo
 
 class UpdateCategoryController {
     async handle(req, res) {
-        try {
-            const targetCategoryId = req.params.id;
-            const body = req.body;
-            const updatedCategory = await UpdateCategoryService.execute(targetCategoryId, body);
+        const targetCategoryId = req.params.id;
+        const body = req.body;
+        const updatedCategory = await UpdateCategoryService.execute(targetCategoryId, body);
 
-            return res.json(UpdateCategoryResponseDto.toResponse(updatedCategory));
-        } catch (error) {
-            return res.status(400).json({ error: error.message });
-        }
+        return res.json(UpdateCategoryResponseDto.toResponse(updatedCategory));
     }
 }
 

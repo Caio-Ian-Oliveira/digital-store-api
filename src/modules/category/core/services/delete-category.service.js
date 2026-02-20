@@ -1,13 +1,14 @@
+const AppError = require("../../../../shared/errors/AppError")
 const CategoryRepository = require("../../persistence/category.repository");
 
     class DeleteCategoryService {
     async execute(targetCategoryId) {
-        const category = await CategoryRepository.findById(targetCategoryId);
-        if (!category) {
-            throw new Error("Category not found.");
+        const categoryExists = await CategoryRepository.findById(targetCategoryId);
+        if (!categoryExists) {
+            throw new AppError("Category not found.", 404);
         }
         await CategoryRepository.softDelete(targetCategoryId);
-        return category;
+        return categoryExists;
     }
 }
 

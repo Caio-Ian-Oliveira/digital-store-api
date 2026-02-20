@@ -1,3 +1,4 @@
+const AppError = require("../../../../shared/errors/AppError");
 const ProductRepository = require("../../persistence/product.repository");
 
 class GetProductByIdService {
@@ -5,7 +6,7 @@ class GetProductByIdService {
         const product = await ProductRepository.findById(targetProductId);
 
         if (!product) {
-            throw new Error("Product not found");
+            throw new AppError("Product not found", 404);
         }
 
         return product;

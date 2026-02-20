@@ -1,3 +1,4 @@
+const AppError = require("../../../../shared/errors/AppError");
 const ProductRepository = require("../../persistence/product.repository");
 const { Category, Product } = require("../../../../models/");
 
@@ -36,7 +37,7 @@ class CreateProductService {
     });
 
     if (existing) {
-      throw new Error("Produto já existe (nome ou slug duplicado)");
+      throw new AppError("Produto já existe (nome ou slug duplicado)", 400);
     }
 
     // Valida que todas as categorias existem
@@ -48,7 +49,7 @@ class CreateProductService {
       if (categories.length !== category_ids.length) {
         const foundIds = categories.map((c) => c.id);
         const notFound = category_ids.filter((id) => !foundIds.includes(id));
-        throw new Error(`Categorias não encontradas: ${notFound.join(", ")}`);
+        throw new AppError(`Categorias não encontradas: ${notFound.join(", ")}`, 400);
       }
     }
 

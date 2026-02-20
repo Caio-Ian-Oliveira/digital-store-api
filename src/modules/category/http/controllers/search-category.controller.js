@@ -80,18 +80,11 @@ const SearchCategoryResponseDto = require("../dto/response/search-category.respo
 
 class SearchCategoryController {
   async handle(req, res) {
-    try {
-      // Executa o serviço usando o req.query já validado
-      const result = await SearchCategoryService.execute(req.query);
+    // Executa o serviço usando o req.query já validado
+    const result = await SearchCategoryService.execute(req.query);
 
-      // Formata e envia
-      return res.status(200).json(SearchCategoryResponseDto.toResponse(result));
-    } catch (error) {
-      return res.status(500).json({
-        error: "Internal Server Error",
-        message: error.message,
-      });
-    }
+    // Formata e envia
+    return res.status(200).json(SearchCategoryResponseDto.toResponse(result));
   }
 }
 

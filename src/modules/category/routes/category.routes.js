@@ -12,6 +12,7 @@ const updateCategoryController = require("../http/controllers/update-category.co
 const { updateCategoryValidator } = require("../http/validators/update-category.validator");
 const deleteCategoryController = require("../http/controllers/delete-category.controller");
 const { deleteCategoryValidator } = require("../http/validators/delete-category.validator");  
+const asyncHandler = require("../../../shared/middlewares/async-handler.middleware");
 const router = express.Router();
 
 router.post(
@@ -19,12 +20,12 @@ router.post(
   authVerificationMiddleware,
   roleGuardMiddleware.handle(["ADMIN"]),
   createCategoryValidator,
-  CreateCategoryController.handle,
+  asyncHandler(CreateCategoryController.handle),
 );
 
-router.patch("/v1/category/:id", authVerificationMiddleware, roleGuardMiddleware.handle(["ADMIN"]), updateCategoryValidator, updateCategoryController.handle)
-router.delete("/v1/category/:id", authVerificationMiddleware, roleGuardMiddleware.handle(["ADMIN"]), deleteCategoryValidator, deleteCategoryController.handle)
-router.get("/v1/category/search", authVerificationMiddleware, searchCategoryValidator, SearchCategoryController.handle);
-router.get("/v1/category/:id", authVerificationMiddleware, getCategoryByIdValidator, GetCategoryByIdController.handle);
+router.patch("/v1/category/:id", authVerificationMiddleware, roleGuardMiddleware.handle(["ADMIN"]), updateCategoryValidator, asyncHandler(updateCategoryController.handle))
+router.delete("/v1/category/:id", authVerificationMiddleware, roleGuardMiddleware.handle(["ADMIN"]), deleteCategoryValidator, asyncHandler(deleteCategoryController.handle))
+router.get("/v1/category/search", authVerificationMiddleware, searchCategoryValidator, asyncHandler(SearchCategoryController.handle));
+router.get("/v1/category/:id", authVerificationMiddleware, getCategoryByIdValidator, asyncHandler(GetCategoryByIdController.handle));
 
 module.exports = router;

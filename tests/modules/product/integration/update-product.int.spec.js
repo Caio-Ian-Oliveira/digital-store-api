@@ -208,7 +208,7 @@ describe("Update Product - Integration Tests", () => {
     // Initial implementation logic might throw error or return 404/400 depending on service/repo.
     // Controller catches error -> returns 400.
     // Service throws "Product not found".
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(404);
     expect(response.body.error).toBe("Product not found");
   });
 

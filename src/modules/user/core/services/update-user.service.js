@@ -1,3 +1,4 @@
+const AppError = require("../../../../shared/errors/AppError");
 const userRepository = require("../../persistence/user.repository");
 
 class UpdateUserService {
@@ -6,7 +7,7 @@ class UpdateUserService {
     if (loggedUser.role === "ADMIN") {
       const user = await userRepository.updateUser(targetUserId, updateData);
       if (!user) {
-        throw new Error("Acesso negado ou recurso não disponível.");
+        throw new AppError("Acesso negado ou recurso não disponível.", 404);
       }
       return user;
     }
@@ -14,12 +15,12 @@ class UpdateUserService {
     if (String(loggedUser.sub) === String(targetUserId)) {
       const user = await userRepository.updateUser(targetUserId, updateData);
       if (!user) {
-        throw new Error("Acesso negado ou recurso não disponível.");
+        throw new AppError("Acesso negado ou recurso não disponível.", 404);
       }
       return user;
     }
 
-    throw new Error("Acesso negado ou recurso não disponível.");
+    throw new AppError("Acesso negado ou recurso não disponível.", 403);
   }
 }
 

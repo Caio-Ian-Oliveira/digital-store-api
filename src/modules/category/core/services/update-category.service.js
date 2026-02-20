@@ -1,3 +1,4 @@
+const AppError = require("../../../../shared/errors/AppError");
 const CategoryRepository = require("../../persistence/category.repository");
 
 class UpdateCategoryService {
@@ -5,7 +6,7 @@ class UpdateCategoryService {
         const category = await CategoryRepository.findById(targetCategoryId);
 
         if (!category) {
-            throw new Error("Category not found");
+            throw new AppError("Category not found", 404);
         }
 
         const updatedCategory = await CategoryRepository.update(targetCategoryId, data);

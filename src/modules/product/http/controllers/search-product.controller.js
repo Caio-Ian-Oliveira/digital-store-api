@@ -49,31 +49,27 @@ const SearchProductResponseDto = require("../dto/response/search-product.respons
  */
 class SearchProductController {
   async handle(req, res) {
-    try {
-      const { 
-        page, 
-        limit, 
-        fields, 
-        match, 
-        category_ids, 
-        "price-range": priceRange, 
-        option 
-      } = res.locals.searchParams || req.query;
+    const { 
+      page, 
+      limit, 
+      fields, 
+      match, 
+      category_ids, 
+      "price-range": priceRange, 
+      option 
+    } = res.locals.searchParams || req.query;
 
-      const result = await SearchProductService.execute({
-        page,
-        limit,
-        fields,
-        match,
-        category_ids,
-        priceRange,
-        option,
-      });
+    const result = await SearchProductService.execute({
+      page,
+      limit,
+      fields,
+      match,
+      category_ids,
+      priceRange,
+      option,
+    });
 
-      return res.status(200).json(SearchProductResponseDto.toResponse(result));
-    } catch (error) {
-      return res.status(500).json({ error: error.message });
-    }
+    return res.status(200).json(SearchProductResponseDto.toResponse(result));
   }
 }
 

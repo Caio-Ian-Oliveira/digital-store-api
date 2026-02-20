@@ -1,3 +1,4 @@
+const AppError = require("../../../../shared/errors/AppError");
 const bcrypt = require("bcrypt");
 const userRepository = require("../../persistence/user.repository");
 const { generateToken } = require("../../../../shared/auth/jwt");
@@ -8,12 +9,12 @@ class LoginService {
     // Buscar usuário por email
     const user = await userRepository.findByEmail(email);
     if (!user) {
-      throw new Error("Credenciais inválidas");
+      throw new AppError("Credenciais inválidas", 401);
     }
     // Validar senha
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
-      throw new Error("Credenciais inválidas");
+      throw new AppError("Credenciais inválidas", 401);
     }
     // Gerar token JWT
     const token = generateToken({ sub: user.id, role: user.role });

@@ -47,16 +47,9 @@ const GetCategoryByIdResponseDto = require("../dto/response/get-category-by-id.r
 
 class GetCategoryByIdController {
   async handle(req, res) {
-    try {
-      const targetCategoryId = req.params.id;
-      const category = await GetCategoryByIdService.execute(targetCategoryId);
-      return res.status(200).json(GetCategoryByIdResponseDto.toResponse(category));
-    } catch (error) {
-      if (error.message === "Category not found.") {
-        return res.status(404).json({ error: "Category not found" });
-      }
-      return res.status(400).json({ error: error.message });
-    }
+    const targetCategoryId = req.params.id;
+    const category = await GetCategoryByIdService.execute(targetCategoryId);
+    return res.status(200).json(GetCategoryByIdResponseDto.toResponse(category));
   }
 }
 module.exports = new GetCategoryByIdController();

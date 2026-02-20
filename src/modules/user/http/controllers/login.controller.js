@@ -54,15 +54,10 @@ const LoginService = require("../../core/services/login.service");
 
 class LoginController {
   async handle(req, res) {
-    try {
-      const { email, password } = req.body;
+    const { email, password } = req.body;
 
-      const result = await LoginService.execute({ email, password });
-      return res.status(200).json(LoginResponseDto.toResponse(result));
-      
-    } catch (error) {
-      return res.status(400).json({ error: error.message });
-    }
+    const result = await LoginService.execute({ email, password });
+    return res.status(200).json(LoginResponseDto.toResponse(result));
   }
 }
 
