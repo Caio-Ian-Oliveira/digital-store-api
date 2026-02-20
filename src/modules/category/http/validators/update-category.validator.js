@@ -6,8 +6,14 @@ const { z } = require("zod");
  */
 const updateCategorySchema = z
   .object({
-    name: z.string({ required_error: "Nome é obrigatório" }).min(2, "Nome é obrigatório").max(50, "Nome deve ter no máximo 50 caracteres"),
-    slug: z.string({ required_error: "Slug é obrigatório" }).min(2, "Slug é obrigatório").max(50, "Slug deve ter no máximo 50 caracteres"),
+    name: z
+      .string({ required_error: "Nome é obrigatório" })
+      .min(2, "Nome é obrigatório")
+      .max(50, "Nome deve ter no máximo 50 caracteres"),
+    slug: z
+      .string({ required_error: "Slug é obrigatório" })
+      .min(2, "Slug é obrigatório")
+      .max(50, "Slug deve ter no máximo 50 caracteres"),
     use_in_menu: z.boolean({ required_error: "Uso no menu é obrigatório" }),
   })
   .strict();

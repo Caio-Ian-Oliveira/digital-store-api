@@ -121,7 +121,7 @@ describe("Create Category - Integration Tests", () => {
 
   it("POST /v1/category - Deve retornar 400 se o nome ou slug excederem o limite de caracteres", async () => {
     const token = generateToken(adminPayload);
-    const longString = "a".repeat(51); 
+    const longString = "a".repeat(51);
 
     const invalidData = {
       name: longString,
@@ -129,16 +129,13 @@ describe("Create Category - Integration Tests", () => {
       use_in_menu: true,
     };
 
-    const response = await request(app)
-      .post("/v1/category")
-      .set("Authorization", `Bearer ${token}`)
-      .send(invalidData);
+    const response = await request(app).post("/v1/category").set("Authorization", `Bearer ${token}`).send(invalidData);
 
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty("errors");
-    
+
     // Verifica se os erros de validação contêm mensagens sobre o limite
     const errors = response.body.errors;
-    expect(errors.some(e => e.message.includes("50 caracteres"))).toBe(true);
+    expect(errors.some((e) => e.message.includes("50 caracteres"))).toBe(true);
   });
 });

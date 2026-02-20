@@ -1,5 +1,5 @@
-const AppError = require('../../../../shared/errors/AppError');
-const ProductRepository = require('../../persistence/product.repository');
+const AppError = require("../../../../shared/errors/AppError");
+const ProductRepository = require("../../persistence/product.repository");
 
 /**
  * Serviço responsável pela exclusão de produtos (hard delete).
@@ -15,7 +15,7 @@ class DeleteProductService {
   async execute(targetProductId) {
     const deleted = await ProductRepository.deleteProduct(targetProductId);
     if (!deleted) {
-      throw new AppError('Recurso não encontrado.', 404);
+      throw new AppError("Recurso não encontrado.", 404);
     }
     return true;
   }

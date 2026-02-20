@@ -1,6 +1,6 @@
-const AppError = require('../../../../shared/errors/AppError');
-const ProductRepository = require('../../persistence/product.repository');
-const { processImage } = require('../../../../shared/utils/image.utils');
+const AppError = require("../../../../shared/errors/AppError");
+const ProductRepository = require("../../persistence/product.repository");
+const { processImage } = require("../../../../shared/utils/image.utils");
 
 /**
  * Serviço responsável pela atualização de produtos.
@@ -28,7 +28,7 @@ class UpdateProductService {
     const targetProduct = await ProductRepository.findById(targetProductId);
 
     if (!targetProduct) {
-      throw new AppError('Recurso não encontrado.', 404);
+      throw new AppError("Recurso não encontrado.", 404);
     }
 
     // Processa imagens (resolve URLs) antes de passar ao repository

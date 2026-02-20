@@ -30,11 +30,36 @@ const asyncHandler = require("../../../shared/middlewares/async-handler.middlewa
  */
 const router = express.Router();
 
-router.post("/v1/product", authVerificationMiddleware, roleGuardMiddleware.handle(["ADMIN"]), createProductValidator, asyncHandler(CreateProductController.handle));
-router.post("/v1/product/upload-image", authVerificationMiddleware, roleGuardMiddleware.handle(["ADMIN"]), upload.single("image"), uploadImageValidator, asyncHandler(UploadImageController.handle));
+router.post(
+  "/v1/product",
+  authVerificationMiddleware,
+  roleGuardMiddleware.handle(["ADMIN"]),
+  createProductValidator,
+  asyncHandler(CreateProductController.handle),
+);
+router.post(
+  "/v1/product/upload-image",
+  authVerificationMiddleware,
+  roleGuardMiddleware.handle(["ADMIN"]),
+  upload.single("image"),
+  uploadImageValidator,
+  asyncHandler(UploadImageController.handle),
+);
 router.get("/v1/product/search", searchProductValidator, asyncHandler(SearchProductController.handle));
 router.get("/v1/product/:id", getProductByIdValidator, asyncHandler(GetProductByIdController.handle));
-router.patch("/v1/product/:id", authVerificationMiddleware, roleGuardMiddleware.handle(["ADMIN"]), updateProductValidator, asyncHandler(UpdateProductController.handle));
-router.delete("/v1/product/:id", authVerificationMiddleware, roleGuardMiddleware.handle(["ADMIN"]), deleteProductValidator, asyncHandler(DeleteProductController.handle));
+router.patch(
+  "/v1/product/:id",
+  authVerificationMiddleware,
+  roleGuardMiddleware.handle(["ADMIN"]),
+  updateProductValidator,
+  asyncHandler(UpdateProductController.handle),
+);
+router.delete(
+  "/v1/product/:id",
+  authVerificationMiddleware,
+  roleGuardMiddleware.handle(["ADMIN"]),
+  deleteProductValidator,
+  asyncHandler(DeleteProductController.handle),
+);
 
 module.exports = router;

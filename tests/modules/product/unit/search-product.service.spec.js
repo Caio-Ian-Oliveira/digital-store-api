@@ -53,7 +53,7 @@ describe("SearchProductService - Unit Tests", () => {
     });
 
     it("deve repassar parâmetros parciais para o repositório", async () => {
-       const params = {
+      const params = {
         limit: -1,
       };
 

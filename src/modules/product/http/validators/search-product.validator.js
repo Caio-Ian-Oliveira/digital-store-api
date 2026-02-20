@@ -25,11 +25,14 @@ const searchProductSchema = z.object({
   "price-range": z
     .string()
     .optional()
-    .refine((val) => {
-      if (!val) return true;
-      const parts = val.split("-");
-      return parts.length === 2 && !isNaN(parseFloat(parts[0])) && !isNaN(parseFloat(parts[1]));
-    }, { message: "Faixa de preço deve estar no formato 'min-max'" }),
+    .refine(
+      (val) => {
+        if (!val) return true;
+        const parts = val.split("-");
+        return parts.length === 2 && !isNaN(parseFloat(parts[0])) && !isNaN(parseFloat(parts[1]));
+      },
+      { message: "Faixa de preço deve estar no formato 'min-max'" },
+    ),
 
   option: z.any().optional(),
 });

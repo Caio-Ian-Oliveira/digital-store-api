@@ -6,10 +6,7 @@ const { z } = require("zod");
  * @type {import('zod').ZodObject}
  */
 const getProductByIdSchema = z.object({
-  id: z.coerce
-    .number()
-    .int()
-    .positive({ message: "ID deve ser um inteiro positivo" }),
+  id: z.coerce.number().int().positive({ message: "ID deve ser um inteiro positivo" }),
 });
 
 /**

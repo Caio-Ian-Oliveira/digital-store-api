@@ -9,7 +9,10 @@ const imageSchema = z.object({
 /** Schema Zod de validação para opções de produto. */
 const optionSchema = z
   .object({
-    title: z.string({ required_error: "Título da opção é obrigatório" }).min(1, "Título da opção é obrigatório").max(30, "Título da opção deve ter no máximo 30 caracteres"),
+    title: z
+      .string({ required_error: "Título da opção é obrigatório" })
+      .min(1, "Título da opção é obrigatório")
+      .max(30, "Título da opção deve ter no máximo 30 caracteres"),
     shape: z.enum(["square", "circle"]).optional(),
     radius: z.number().int().optional(),
     type: z.enum(["text", "color"]).optional(),
@@ -30,8 +33,14 @@ const optionSchema = z
 const createProductSchema = z
   .object({
     enabled: z.boolean().default(false),
-    name: z.string({ required_error: "Nome é obrigatório" }).min(1, "Nome é obrigatório").max(100, "Nome deve ter no máximo 100 caracteres"),
-    slug: z.string({ required_error: "Slug é obrigatório" }).min(1, "Slug é obrigatório").max(100, "Slug deve ter no máximo 100 caracteres"),
+    name: z
+      .string({ required_error: "Nome é obrigatório" })
+      .min(1, "Nome é obrigatório")
+      .max(100, "Nome deve ter no máximo 100 caracteres"),
+    slug: z
+      .string({ required_error: "Slug é obrigatório" })
+      .min(1, "Slug é obrigatório")
+      .max(100, "Slug deve ter no máximo 100 caracteres"),
     use_in_menu: z.boolean().default(false),
     stock: z.number().int().min(0, "Estoque não pode ser negativo").default(0),
     description: z.string().max(1000, "Descrição deve ter no máximo 1000 caracteres").optional(),

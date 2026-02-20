@@ -69,7 +69,7 @@ describe("Update Product - Integration Tests", () => {
     const token = generateToken(adminPayload);
     const updatePayload = {
       price: 150.0,
-      name: "Updated Product Name"
+      name: "Updated Product Name",
     };
 
     const response = await request(app)
@@ -80,7 +80,7 @@ describe("Update Product - Integration Tests", () => {
     expect(response.status).toBe(200);
     // Sequelize update returns [numberOfAffectedRows], but repository might return the updated product or just the result.
     // Let's check the DB to be sure.
-    
+
     const productInDb = await Product.findByPk(testProduct.id);
     expect(productInDb.price).toBe(150.0);
     expect(productInDb.name).toBe("Updated Product Name");
@@ -91,7 +91,7 @@ describe("Update Product - Integration Tests", () => {
     const token = generateToken(adminPayload);
     const updatePayload = {
       price: 200.0,
-      price_with_discount: 180.0
+      price_with_discount: 180.0,
     };
 
     const response = await request(app)
@@ -123,9 +123,7 @@ describe("Update Product - Integration Tests", () => {
   it("PATCH /v1/product/:id - Deve retornar 401 se não enviar token", async () => {
     const updatePayload = { price: 200.0 };
 
-    const response = await request(app)
-      .patch(`/v1/product/${testProduct.id}`)
-      .send(updatePayload);
+    const response = await request(app).patch(`/v1/product/${testProduct.id}`).send(updatePayload);
 
     expect(response.status).toBe(401);
   });
@@ -143,15 +141,17 @@ describe("Update Product - Integration Tests", () => {
 
     expect(response.status).toBe(400);
     expect(response.body.errors).toEqual(
-      expect.arrayContaining([expect.objectContaining({ field: "price", message: expect.stringContaining("positivo") })])
+      expect.arrayContaining([
+        expect.objectContaining({ field: "price", message: expect.stringContaining("positivo") }),
+      ]),
     );
   });
 
   it("PATCH /v1/product/:id - Deve retornar 400 se price_with_discount > price", async () => {
     const token = generateToken(adminPayload);
-    const updatePayload = { 
+    const updatePayload = {
       price: 100.0,
-      price_with_discount: 150.0 
+      price_with_discount: 150.0,
     };
 
     const response = await request(app)
@@ -160,8 +160,8 @@ describe("Update Product - Integration Tests", () => {
       .send(updatePayload);
 
     expect(response.status).toBe(400);
-     expect(response.body.errors).toEqual(
-      expect.arrayContaining([expect.objectContaining({ field: "price_with_discount" })])
+    expect(response.body.errors).toEqual(
+      expect.arrayContaining([expect.objectContaining({ field: "price_with_discount" })]),
     );
   });
 
@@ -177,11 +177,11 @@ describe("Update Product - Integration Tests", () => {
     expect(response.status).toBe(400);
   });
 
-    it("PATCH /v1/product/:id - Deve retornar 400 ao enviar campos desconhecidos (strict mode)", async () => {
+  it("PATCH /v1/product/:id - Deve retornar 400 ao enviar campos desconhecidos (strict mode)", async () => {
     const token = generateToken(adminPayload);
-    const updatePayload = { 
-        price: 150.0,
-        unknown_field: "hacker"
+    const updatePayload = {
+      price: 150.0,
+      unknown_field: "hacker",
     };
 
     const response = await request(app)
@@ -191,7 +191,9 @@ describe("Update Product - Integration Tests", () => {
 
     expect(response.status).toBe(400);
     expect(response.body.errors).toEqual(
-        expect.arrayContaining([expect.objectContaining({ field: "", message: expect.stringContaining("Unrecognized key") })])
+      expect.arrayContaining([
+        expect.objectContaining({ field: "", message: expect.stringContaining("Unrecognized key") }),
+      ]),
     );
   });
 
@@ -237,8 +239,8 @@ describe("Update Product - Integration Tests", () => {
         shape: "circle",
         radius: 0,
         type: "text",
-        values: ["XL", "XXL"]
-      }
+        values: ["XL", "XXL"],
+      },
     ];
 
     const response = await request(app)
@@ -249,7 +251,7 @@ describe("Update Product - Integration Tests", () => {
     expect(response.status).toBe(200);
     expect(response.body.options).toHaveLength(1);
     expect(response.body.options[0].title).toBe("Tamanho Novo");
-    
+
     // Verifica valores no banco
     const optionsDb = await ProductOption.findAll({ where: { product_id: testProduct.id } });
     expect(optionsDb).toHaveLength(1);
@@ -267,7 +269,7 @@ describe("Update Product - Integration Tests", () => {
       .send({ category_ids: [newCategory.id] });
 
     expect(response.status).toBe(200);
-    
+
     // Verifica se a categoria foi atualizada
     const product = await Product.findByPk(testProduct.id, { include: ["categories"] });
     expect(product.categories).toHaveLength(1);
@@ -303,11 +305,11 @@ describe("Update Product - Integration Tests", () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty("errors");
-    
+
     const errors = response.body.errors;
-    expect(errors.some(e => e.message.includes("100 caracteres"))).toBe(true); // name, slug
-    expect(errors.some(e => e.message.includes("1000 caracteres"))).toBe(true); // description
-    expect(errors.some(e => e.message.includes("30 caracteres"))).toBe(true); // option title
-    expect(errors.some(e => e.message.includes("255 caracteres"))).toBe(true); // option value
+    expect(errors.some((e) => e.message.includes("100 caracteres"))).toBe(true); // name, slug
+    expect(errors.some((e) => e.message.includes("1000 caracteres"))).toBe(true); // description
+    expect(errors.some((e) => e.message.includes("30 caracteres"))).toBe(true); // option title
+    expect(errors.some((e) => e.message.includes("255 caracteres"))).toBe(true); // option value
   });
 });

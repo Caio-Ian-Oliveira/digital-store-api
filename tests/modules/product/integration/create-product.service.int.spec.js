@@ -110,13 +110,16 @@ describe("Create Product - Integration Tests", () => {
   it("POST /v1/product - Deve criar produto mínimo com sucesso e aplicar defaults (ADMIN)", async () => {
     const token = generateToken(adminPayload);
 
-    const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(validProductMinimal);
+    const response = await request(app)
+      .post("/v1/product")
+      .set("Authorization", `Bearer ${token}`)
+      .send(validProductMinimal);
 
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty("id");
     expect(response.body.name).toBe(validProductMinimal.name);
     expect(response.body.price).toBe(validProductMinimal.price);
-    
+
     // Verificando defaults
     expect(response.body.enabled).toBe(false);
     expect(response.body.use_in_menu).toBe(false);
@@ -127,7 +130,7 @@ describe("Create Product - Integration Tests", () => {
   });
 
   // ============ FALHAS DE VALIDAÇÃO (CAMPOS OBRIGATÓRIOS) ============
-  // Apenas name, slug e price são obrigatórios agora. 
+  // Apenas name, slug e price são obrigatórios agora.
   // enabled, stock, etc são opcionais com default.
 
   it("POST /v1/product - Deve retornar 400 se faltar campo 'name'", async () => {
@@ -194,13 +197,20 @@ describe("Create Product - Integration Tests", () => {
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty("errors");
     expect(response.body.errors).toEqual(
-      expect.arrayContaining([expect.objectContaining({ field: "stock", message: expect.stringContaining("negativo") })]),
+      expect.arrayContaining([
+        expect.objectContaining({ field: "stock", message: expect.stringContaining("negativo") }),
+      ]),
     );
   });
 
   it("POST /v1/product - Deve retornar 400 se price_with_discount > price", async () => {
     const token = generateToken(adminPayload);
-    const invalidData = { ...validProductComplete, price: 50, price_with_discount: 100, category_ids: [testCategory.id] };
+    const invalidData = {
+      ...validProductComplete,
+      price: 50,
+      price_with_discount: 100,
+      category_ids: [testCategory.id],
+    };
 
     const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(invalidData);
 
@@ -234,7 +244,10 @@ describe("Create Product - Integration Tests", () => {
 
     // Tenta criar o segundo com mesmo nome (mesmo que slug mude)
     const duplicateNameData = { ...payload, slug: "outro-slug" };
-    const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(duplicateNameData);
+    const response = await request(app)
+      .post("/v1/product")
+      .set("Authorization", `Bearer ${token}`)
+      .send(duplicateNameData);
 
     expect(response.status).toBe(400);
     expect(response.body.message).toMatch(/já existe/i);
@@ -282,7 +295,7 @@ describe("Create Product - Integration Tests", () => {
         expect.objectContaining({
           message: expect.stringContaining("URL"),
         }),
-      ])
+      ]),
     );
   });
 
@@ -290,7 +303,12 @@ describe("Create Product - Integration Tests", () => {
 
   it("POST /v1/product - Deve retornar 400 se enviar campos extras (malicious)", async () => {
     const token = generateToken(adminPayload);
-    const maliciousData = { ...validProductComplete, category_ids: [testCategory.id], is_admin: true, role: "SUPERUSER" };
+    const maliciousData = {
+      ...validProductComplete,
+      category_ids: [testCategory.id],
+      is_admin: true,
+      role: "SUPERUSER",
+    };
 
     const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(maliciousData);
 
@@ -340,16 +358,16 @@ describe("Create Product - Integration Tests", () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty("errors");
-    
+
     // Verificando se todos os campos inválidos foram capturados
     const errors = response.body.errors;
     // Name e Slug tem limite de 100
-    expect(errors.some(e => e.message.includes("100 caracteres"))).toBe(true); 
+    expect(errors.some((e) => e.message.includes("100 caracteres"))).toBe(true);
     // Description tem limite de 1000
-    expect(errors.some(e => e.message.includes("1000 caracteres"))).toBe(true); 
+    expect(errors.some((e) => e.message.includes("1000 caracteres"))).toBe(true);
     // Option Title tem limite de 30
-    expect(errors.some(e => e.message.includes("30 caracteres"))).toBe(true); 
+    expect(errors.some((e) => e.message.includes("30 caracteres"))).toBe(true);
     // Option Value tem limite de 255
-    expect(errors.some(e => e.message.includes("255 caracteres"))).toBe(true); 
+    expect(errors.some((e) => e.message.includes("255 caracteres"))).toBe(true);
   });
 });

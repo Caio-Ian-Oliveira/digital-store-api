@@ -7,7 +7,7 @@ const app = express();
 
 const userRoutes = require("./modules/user/routes/user.routes");
 const categoryRoutes = require("./modules/category/routes/category.routes");
-const productRoutes = require("./modules/product/routes/product.routes")
+const productRoutes = require("./modules/product/routes/product.routes");
 
 app.use(express.json());
 

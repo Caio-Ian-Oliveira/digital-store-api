@@ -21,7 +21,7 @@ const createProductResponseSchema = z.object({
       id: z.number(),
       enabled: z.boolean(),
       path: z.string(),
-    })
+    }),
   ),
   options: z.array(
     z.object({
@@ -31,7 +31,7 @@ const createProductResponseSchema = z.object({
       radius: z.number().nullable(),
       type: z.string().nullable(),
       values: z.array(z.string()),
-    })
+    }),
   ),
 });
 

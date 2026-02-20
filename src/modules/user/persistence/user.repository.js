@@ -27,7 +27,7 @@ class UserRepository {
    */
   async findById(targetUserId) {
     const user = await User.findByPk(targetUserId, {
-      where: { deleted_at: null }
+      where: { deleted_at: null },
     });
     return user;
   }
@@ -41,8 +41,8 @@ class UserRepository {
     const user = await User.findOne({
       where: {
         email,
-        deleted_at: null
-      }
+        deleted_at: null,
+      },
     });
     return user;
   }
@@ -76,13 +76,9 @@ class UserRepository {
    * @returns {Promise<boolean>} True se um registro foi atualizado, false caso contrário.
    */
   async softDelete(targetUserId) {
-    const [updated] = await User.update(
-      { deleted_at: new Date() },
-      { where: { id: targetUserId, deleted_at: null } }
-    );
+    const [updated] = await User.update({ deleted_at: new Date() }, { where: { id: targetUserId, deleted_at: null } });
     return updated > 0;
   }
-
 }
 
 module.exports = new UserRepository();

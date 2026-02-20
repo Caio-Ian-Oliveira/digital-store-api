@@ -26,7 +26,6 @@ describe("UpdateUserService - Integration Tests", () => {
       const updateData = { firstname: "Updated", surname: "Name" };
       const loggedUser = { sub: admin.id, role: "ADMIN" };
 
-
       const result = await updateUserService.execute(user.id, loggedUser, updateData);
       expect(result.firstname).toBe("Updated");
       expect(result.surname).toBe("Name");
@@ -42,7 +41,6 @@ describe("UpdateUserService - Integration Tests", () => {
 
       const updateData = { firstname: "NewFirstname", surname: "NewSurname" };
       const loggedUser = { sub: user.id, role: "USER" };
-
 
       const result = await updateUserService.execute(user.id, loggedUser, updateData);
       expect(result.firstname).toBe("NewFirstname");

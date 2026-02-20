@@ -52,9 +52,7 @@ describe("Delete Category - Integration Tests", () => {
     const category = await createCategory();
     const token = generateToken(adminPayload);
 
-    const response = await request(app)
-      .delete(`/v1/category/${category.id}`)
-      .set("Authorization", `Bearer ${token}`);
+    const response = await request(app).delete(`/v1/category/${category.id}`).set("Authorization", `Bearer ${token}`);
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("id", category.id);
@@ -76,9 +74,7 @@ describe("Delete Category - Integration Tests", () => {
     const category = await createCategory();
     const token = generateToken(userPayload);
 
-    const response = await request(app)
-      .delete(`/v1/category/${category.id}`)
-      .set("Authorization", `Bearer ${token}`);
+    const response = await request(app).delete(`/v1/category/${category.id}`).set("Authorization", `Bearer ${token}`);
 
     expect(response.status).toBe(403);
     expect(response.body).toHaveProperty("error");
@@ -92,8 +88,7 @@ describe("Delete Category - Integration Tests", () => {
   it("DELETE /v1/category/:id - Deve retornar 401 se não enviar token", async () => {
     const category = await createCategory();
 
-    const response = await request(app)
-      .delete(`/v1/category/${category.id}`);
+    const response = await request(app).delete(`/v1/category/${category.id}`);
 
     expect(response.status).toBe(401);
 
@@ -132,9 +127,7 @@ describe("Delete Category - Integration Tests", () => {
     const token = generateToken(adminPayload);
     const fakeId = "00000000-0000-0000-0000-000000000000";
 
-    const response = await request(app)
-      .delete(`/v1/category/${fakeId}`)
-      .set("Authorization", `Bearer ${token}`);
+    const response = await request(app).delete(`/v1/category/${fakeId}`).set("Authorization", `Bearer ${token}`);
 
     expect(response.status).toBe(404);
     expect(response.body.message).toMatch(/não encontrado/i);

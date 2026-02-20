@@ -88,14 +88,14 @@ describe("List Products - Integration Tests", () => {
 
     // Cria mais 10 produtos genéricos para testar paginação (Total 13)
     for (let i = 0; i < 10; i++) {
-        await Product.create({
-            name: `Produto Genérico ${i}`,
-            slug: `produto-generico-${i}`,
-            price: 50 + i,
-            price_with_discount: 50 + i,
-            enabled: true,
-            stock: 100,
-        });
+      await Product.create({
+        name: `Produto Genérico ${i}`,
+        slug: `produto-generico-${i}`,
+        price: 50 + i,
+        price_with_discount: 50 + i,
+        enabled: true,
+        stock: 100,
+      });
     }
 
     return { cat1, cat2, p1, p2, p3 };
@@ -152,9 +152,9 @@ describe("List Products - Integration Tests", () => {
     expect(response.status).toBe(200);
     // Nike e Adidas
     expect(response.body.data).toHaveLength(2);
-    response.body.data.forEach(p => {
-        const hasCat = p.categories.some(c => c.id === cat1.id);
-        expect(hasCat).toBe(true);
+    response.body.data.forEach((p) => {
+      const hasCat = p.categories.some((c) => c.id === cat1.id);
+      expect(hasCat).toBe(true);
     });
   });
 
@@ -171,26 +171,26 @@ describe("List Products - Integration Tests", () => {
   });
 
   it("GET /v1/product/search - Deve filtrar por opção específica", async () => {
-    const { p1 } = await createScenario(); 
+    const { p1 } = await createScenario();
     // p1 tem option "Tamanho" com values ["40", "41"]
-    
+
     // Pega o ID da option criada
     const option = await ProductOption.findOne({ where: { product_id: p1.id } });
-    
+
     // Busca por option[id]=40
     const response = await request(app).get(`/v1/product/search?option[${option.id}]=40`);
 
     try {
-        expect(response.status).toBe(200);
-        expect(response.body.data).toHaveLength(1);
-        expect(response.body.data[0].id).toBe(p1.id);
+      expect(response.status).toBe(200);
+      expect(response.body.data).toHaveLength(1);
+      expect(response.body.data[0].id).toBe(p1.id);
     } catch (e) {
-        /* require('fs').writeFileSync('failure.log', JSON.stringify({
+      /* require('fs').writeFileSync('failure.log', JSON.stringify({
             status: response.status,
             body: response.body,
             queryURL: `/v1/product/search?option[${option.id}]=40`
         }, null, 2)); */
-        throw e;
+      throw e;
     }
   });
 
@@ -215,20 +215,20 @@ describe("List Products - Integration Tests", () => {
   });
 
   it("GET /v1/product/search - Deve retornar 400 para price-range inválido", async () => {
-      const response = await request(app).get("/v1/product/search?price-range=abc");
+    const response = await request(app).get("/v1/product/search?price-range=abc");
 
-      expect(response.status).toBe(400);
-      expect(response.body.errors[0].message).toMatch(/Faixa de preço deve estar no formato/i);
+    expect(response.status).toBe(400);
+    expect(response.body.errors[0].message).toMatch(/Faixa de preço deve estar no formato/i);
   });
 
   it("GET /v1/product/search - Deve sanitizar input evitando SQL Injection (básico)", async () => {
-      await createScenario();
-      // Tenta passar um comando SQL no match
-      const response = await request(app).get("/v1/product/search?match=' OR '1'='1");
+    await createScenario();
+    // Tenta passar um comando SQL no match
+    const response = await request(app).get("/v1/product/search?match=' OR '1'='1");
 
-      // Se funcionar a injection, retornaria tudo porque '1'='1' (13 itens)
-      // Se estiver seguro, vai procurar um produto com esse nome literal e retornar 0
-      expect(response.status).toBe(200);
-      expect(response.body.data).toHaveLength(0);
+    // Se funcionar a injection, retornaria tudo porque '1'='1' (13 itens)
+    // Se estiver seguro, vai procurar um produto com esse nome literal e retornar 0
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(0);
   });
 });

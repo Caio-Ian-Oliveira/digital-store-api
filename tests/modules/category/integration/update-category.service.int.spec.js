@@ -96,9 +96,7 @@ describe("Update Category - Integration Tests", () => {
   it("PATCH /v1/category/:id - Deve retornar 401 se não enviar token", async () => {
     const category = await createCategory();
 
-    const response = await request(app)
-      .patch(`/v1/category/${category.id}`)
-      .send(validUpdateData);
+    const response = await request(app).patch(`/v1/category/${category.id}`).send(validUpdateData);
 
     expect(response.status).toBe(401);
   });
@@ -168,8 +166,8 @@ describe("Update Category - Integration Tests", () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty("errors");
-    
+
     const errors = response.body.errors;
-    expect(errors.some(e => e.message.includes("50 caracteres"))).toBe(true);
+    expect(errors.some((e) => e.message.includes("50 caracteres"))).toBe(true);
   });
 });
