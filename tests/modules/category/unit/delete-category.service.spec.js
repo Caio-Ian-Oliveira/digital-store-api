@@ -46,9 +46,7 @@ describe("DeleteCategoryService - Unit Tests", () => {
     it("deve lançar erro quando categoria não existe", async () => {
       categoryRepository.findById.mockResolvedValue(null);
 
-      await expect(
-        deleteCategoryService.execute("non-existent-id"),
-      ).rejects.toThrow("Recurso não encontrado.");
+      await expect(deleteCategoryService.execute("non-existent-id")).rejects.toThrow("Recurso não encontrado.");
 
       expect(categoryRepository.findById).toHaveBeenCalledWith("non-existent-id");
       expect(categoryRepository.softDelete).not.toHaveBeenCalled();

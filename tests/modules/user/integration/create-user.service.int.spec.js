@@ -35,20 +35,20 @@ describe("CreateUserService - Integration Tests", () => {
       expect(userInDb.email).toBe(validUserData.email);
       expect(userInDb.role).toBe("USER");
     });
-        it("deve criar um usuário no banco de dados com sucesso", async () => {
-       const result = await createUserService.execute(validUserData);
+    it("deve criar um usuário no banco de dados com sucesso", async () => {
+      const result = await createUserService.execute(validUserData);
 
-       expect(result).toHaveProperty("email");
-       expect(result.email).toBe(validUserData.email);
-       expect(result.firstname).toBe(validUserData.firstname);
-       expect(result.surname).toBe(validUserData.surname);
+      expect(result).toHaveProperty("email");
+      expect(result.email).toBe(validUserData.email);
+      expect(result.firstname).toBe(validUserData.firstname);
+      expect(result.surname).toBe(validUserData.surname);
 
-       // Verifica se o usuário foi realmente criado no banco
-       const userInDb = await User.findOne({ where: { email: validUserData.email } });
-       expect(userInDb).not.toBeNull();
-       expect(userInDb.email).toBe(validUserData.email);
-       expect(userInDb.role).toBe("USER");
-        });
+      // Verifica se o usuário foi realmente criado no banco
+      const userInDb = await User.findOne({ where: { email: validUserData.email } });
+      expect(userInDb).not.toBeNull();
+      expect(userInDb.email).toBe(validUserData.email);
+      expect(userInDb.role).toBe("USER");
+    });
 
     it("deve hashear a senha ao criar o usuário", async () => {
       await createUserService.execute(validUserData);

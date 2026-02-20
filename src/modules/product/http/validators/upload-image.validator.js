@@ -5,11 +5,12 @@ const { z } = require("zod");
  * Valida que o tipo MIME é de imagem e que o conteúdo não está vazio.
  */
 const uploadImageSchema = z.object({
-  type: z.string({ required_error: "Tipo da imagem é obrigatório" }).refine(
-    (val) => val.startsWith("image/"),
-    { message: "Tipo deve ser um MIME type de imagem válido (ex: image/png, image/jpeg)" }
-  ),
-  content: z.string({ required_error: "Conteúdo da imagem é obrigatório" }).min(1, "Conteúdo da imagem não pode ser vazio"),
+  type: z.string({ required_error: "Tipo da imagem é obrigatório" }).refine((val) => val.startsWith("image/"), {
+    message: "Tipo deve ser um MIME type de imagem válido (ex: image/png, image/jpeg)",
+  }),
+  content: z
+    .string({ required_error: "Conteúdo da imagem é obrigatório" })
+    .min(1, "Conteúdo da imagem não pode ser vazio"),
 });
 
 /**

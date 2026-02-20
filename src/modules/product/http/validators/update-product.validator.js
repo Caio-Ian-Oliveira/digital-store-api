@@ -9,7 +9,10 @@ const imageSchema = z.object({
 /** Schema Zod de validação para opções de produto na atualização. */
 const optionSchema = z
   .object({
-    title: z.string({ required_error: "Título da opção é obrigatório" }).min(1, "Título da opção é obrigatório").max(30, "Título da opção deve ter no máximo 30 caracteres"),
+    title: z
+      .string({ required_error: "Título da opção é obrigatório" })
+      .min(1, "Título da opção é obrigatório")
+      .max(30, "Título da opção deve ter no máximo 30 caracteres"),
     shape: z.enum(["square", "circle"]).optional(),
     radius: z.number().int().optional(),
     type: z.enum(["text", "color"]).optional(),
@@ -53,15 +56,12 @@ const updateProductSchema = z
     {
       message: "Preço com desconto deve ser menor ou igual ao preço",
       path: ["price_with_discount"],
-    }
+    },
   )
-  .refine(
-    (data) => Object.keys(data).length > 0, 
-    {
-      message: "Pelo menos um campo deve ser fornecido para atualização",
-      path: [],
-    }
-  );
+  .refine((data) => Object.keys(data).length > 0, {
+    message: "Pelo menos um campo deve ser fornecido para atualização",
+    path: [],
+  });
 
 const paramsSchema = z.object({
   id: z.coerce.number().int().positive(),
@@ -95,7 +95,7 @@ const updateProductValidator = (req, res, next) => {
 
   req.params.id = paramsResult.data.id;
   req.body = bodyResult.data;
-  
+
   next();
 };
 

@@ -28,13 +28,10 @@ describe("UploadImageService - Unit Tests", () => {
       url: "https://res.cloudinary.com/test/image/upload/v1/test.jpg",
       public_id: "products/test",
     });
-    expect(cloudinary.uploader.upload).toHaveBeenCalledWith(
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA",
-      {
-        folder: "products",
-        resource_type: "image",
-      }
-    );
+    expect(cloudinary.uploader.upload).toHaveBeenCalledWith("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA", {
+      folder: "products",
+      resource_type: "image",
+    });
   });
 
   it("deve fazer upload de imagem JPEG com sucesso", async () => {
@@ -52,13 +49,10 @@ describe("UploadImageService - Unit Tests", () => {
       url: "https://res.cloudinary.com/test/image/upload/v1/test.jpg",
       public_id: "products/test",
     });
-    expect(cloudinary.uploader.upload).toHaveBeenCalledWith(
-      "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD",
-      {
-        folder: "products",
-        resource_type: "image",
-      }
-    );
+    expect(cloudinary.uploader.upload).toHaveBeenCalledWith("data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD", {
+      folder: "products",
+      resource_type: "image",
+    });
   });
 
   it("deve lançar erro quando Cloudinary falhar", async () => {
@@ -68,7 +62,7 @@ describe("UploadImageService - Unit Tests", () => {
       UploadImageService.execute({
         type: "image/png",
         content: "iVBORw0KGgoAAAANSUhEUgAAAAUA",
-      })
+      }),
     ).rejects.toThrow("Cloudinary error");
   });
 
@@ -85,7 +79,7 @@ describe("UploadImageService - Unit Tests", () => {
 
     expect(cloudinary.uploader.upload).toHaveBeenCalledWith(
       "data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAw",
-      expect.any(Object)
+      expect.any(Object),
     );
   });
 

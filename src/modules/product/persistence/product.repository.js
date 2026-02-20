@@ -114,7 +114,17 @@ class ProductRepository {
     }
 
     // 2. Projeção de campos
-    queryOptions.attributes = ["id", "name", "slug", "price", "price_with_discount", "description", "enabled", "stock", "use_in_menu"];
+    queryOptions.attributes = [
+      "id",
+      "name",
+      "slug",
+      "price",
+      "price_with_discount",
+      "description",
+      "enabled",
+      "stock",
+      "use_in_menu",
+    ];
     if (fields) {
       const requestedFields = fields.split(",").map((f) => f.trim());
       if (!requestedFields.includes("id")) requestedFields.unshift("id");

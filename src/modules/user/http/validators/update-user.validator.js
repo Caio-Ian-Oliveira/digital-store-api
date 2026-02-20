@@ -7,8 +7,16 @@ const { z } = require("zod");
  */
 const updateUserSchema = z
   .object({
-    firstname: z.string({ required_error: "Nome é obrigatório" }).min(2, "Nome deve ter no mínimo 2 caracteres").max(50, "Nome deve ter no máximo 50 caracteres").optional(),
-    surname: z.string({ required_error: "Sobrenome é obrigatório" }).min(2, "Sobrenome deve ter no mínimo 2 caracteres").max(50, "Sobrenome deve ter no máximo 50 caracteres").optional(),
+    firstname: z
+      .string({ required_error: "Nome é obrigatório" })
+      .min(2, "Nome deve ter no mínimo 2 caracteres")
+      .max(50, "Nome deve ter no máximo 50 caracteres")
+      .optional(),
+    surname: z
+      .string({ required_error: "Sobrenome é obrigatório" })
+      .min(2, "Sobrenome deve ter no mínimo 2 caracteres")
+      .max(50, "Sobrenome deve ter no máximo 50 caracteres")
+      .optional(),
   })
   .strict();
 

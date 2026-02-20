@@ -104,9 +104,7 @@ describe("Upload Image - Integration Tests", () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty("errors");
-    expect(response.body.errors).toEqual(
-      expect.arrayContaining([expect.objectContaining({ field: "type" })])
-    );
+    expect(response.body.errors).toEqual(expect.arrayContaining([expect.objectContaining({ field: "type" })]));
   });
 
   it("POST /v1/product/upload-image - Deve retornar 400 se faltar campo 'content'", async () => {
@@ -122,9 +120,7 @@ describe("Upload Image - Integration Tests", () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty("errors");
-    expect(response.body.errors).toEqual(
-      expect.arrayContaining([expect.objectContaining({ field: "content" })])
-    );
+    expect(response.body.errors).toEqual(expect.arrayContaining([expect.objectContaining({ field: "content" })]));
   });
 
   it("POST /v1/product/upload-image - Deve retornar 400 se 'type' não for image/*", async () => {
@@ -147,7 +143,7 @@ describe("Upload Image - Integration Tests", () => {
           field: "type",
           message: expect.stringContaining("image"),
         }),
-      ])
+      ]),
     );
   });
 
@@ -171,7 +167,7 @@ describe("Upload Image - Integration Tests", () => {
           field: "content",
           message: expect.stringContaining("vazio"),
         }),
-      ])
+      ]),
     );
   });
 
@@ -187,4 +183,3 @@ describe("Upload Image - Integration Tests", () => {
     expect(response.body).toHaveProperty("errors"); // Validator retorna 'errors' array
   });
 });
-

@@ -8,13 +8,22 @@ const { z } = require("zod");
  */
 const createUserSchema = z
   .object({
-    firstname: z.string({ required_error: "Nome é obrigatório" }).min(1, "Nome é obrigatório").max(50, "Nome deve ter no máximo 50 caracteres"),
+    firstname: z
+      .string({ required_error: "Nome é obrigatório" })
+      .min(1, "Nome é obrigatório")
+      .max(50, "Nome deve ter no máximo 50 caracteres"),
 
-    surname: z.string({ required_error: "Sobrenome é obrigatório" }).min(1, "Sobrenome é obrigatório").max(50, "Sobrenome deve ter no máximo 50 caracteres"),
+    surname: z
+      .string({ required_error: "Sobrenome é obrigatório" })
+      .min(1, "Sobrenome é obrigatório")
+      .max(50, "Sobrenome deve ter no máximo 50 caracteres"),
 
     email: z.string({ required_error: "Email é obrigatório" }).email("Email inválido"),
 
-    password: z.string({ required_error: "Senha é obrigatória" }).min(6, "Senha deve ter no mínimo 6 caracteres").max(100, "Senha deve ter no máximo 100 caracteres"),
+    password: z
+      .string({ required_error: "Senha é obrigatória" })
+      .min(6, "Senha deve ter no mínimo 6 caracteres")
+      .max(100, "Senha deve ter no máximo 100 caracteres"),
 
     confirmPassword: z
       .string({ required_error: "Confirmação de senha é obrigatória" })

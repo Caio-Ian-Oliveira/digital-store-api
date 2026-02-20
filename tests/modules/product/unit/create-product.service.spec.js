@@ -38,10 +38,7 @@ describe("CreateProductService - Unit Tests", () => {
 
       const result = await createProductService.execute(validProductData);
 
-      expect(productRepository.findByNameOrSlug).toHaveBeenCalledWith(
-        validProductData.name,
-        validProductData.slug
-      );
+      expect(productRepository.findByNameOrSlug).toHaveBeenCalledWith(validProductData.name, validProductData.slug);
       expect(categoryRepository.findByIds).toHaveBeenCalledWith(validProductData.category_ids);
       expect(productRepository.createProduct).toHaveBeenCalledWith({
         productData: expect.objectContaining({

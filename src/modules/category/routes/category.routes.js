@@ -35,9 +35,31 @@ router.post(
   asyncHandler(CreateCategoryController.handle),
 );
 
-router.patch("/v1/category/:id", authVerificationMiddleware, roleGuardMiddleware.handle(["ADMIN"]), updateCategoryValidator, asyncHandler(updateCategoryController.handle));
-router.delete("/v1/category/:id", authVerificationMiddleware, roleGuardMiddleware.handle(["ADMIN"]), deleteCategoryValidator, asyncHandler(deleteCategoryController.handle));
-router.get("/v1/category/search", authVerificationMiddleware, searchCategoryValidator, asyncHandler(SearchCategoryController.handle));
-router.get("/v1/category/:id", authVerificationMiddleware, getCategoryByIdValidator, asyncHandler(GetCategoryByIdController.handle));
+router.patch(
+  "/v1/category/:id",
+  authVerificationMiddleware,
+  roleGuardMiddleware.handle(["ADMIN"]),
+  updateCategoryValidator,
+  asyncHandler(updateCategoryController.handle),
+);
+router.delete(
+  "/v1/category/:id",
+  authVerificationMiddleware,
+  roleGuardMiddleware.handle(["ADMIN"]),
+  deleteCategoryValidator,
+  asyncHandler(deleteCategoryController.handle),
+);
+router.get(
+  "/v1/category/search",
+  authVerificationMiddleware,
+  searchCategoryValidator,
+  asyncHandler(SearchCategoryController.handle),
+);
+router.get(
+  "/v1/category/:id",
+  authVerificationMiddleware,
+  getCategoryByIdValidator,
+  asyncHandler(GetCategoryByIdController.handle),
+);
 
 module.exports = router;

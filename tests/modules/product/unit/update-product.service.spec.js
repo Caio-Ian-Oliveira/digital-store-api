@@ -12,7 +12,7 @@ describe("UpdateProductService - Testes Unitários", () => {
   const targetProductId = 1;
   const updateData = {
     price: 150.0,
-    name: "Produto Atualizado"
+    name: "Produto Atualizado",
   };
 
   const existingProduct = {
@@ -30,7 +30,7 @@ describe("UpdateProductService - Testes Unitários", () => {
     it("deve atualizar um produto com sucesso quando ele existe", async () => {
       // Mock: Produto existe
       productRepository.findById.mockResolvedValue(existingProduct);
-      
+
       // Mock: Atualização retorna produto atualizado
       productRepository.updateProduct.mockResolvedValue(updatedProduct);
 
@@ -45,9 +45,9 @@ describe("UpdateProductService - Testes Unitários", () => {
       // Mock: Produto não encontrado
       productRepository.findById.mockResolvedValue(null);
 
-      await expect(updateProductService.execute(targetProductId, updateData))
-        .rejects
-        .toThrow("Recurso não encontrado.");
+      await expect(updateProductService.execute(targetProductId, updateData)).rejects.toThrow(
+        "Recurso não encontrado.",
+      );
 
       expect(productRepository.findById).toHaveBeenCalledWith(targetProductId);
       expect(productRepository.updateProduct).not.toHaveBeenCalled();

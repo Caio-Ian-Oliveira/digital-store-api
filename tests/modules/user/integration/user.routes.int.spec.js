@@ -29,7 +29,7 @@ describe("User Routes - Character Limits Integration Tests", () => {
         surname: longString50,
         email: "valid@email.com",
         password: longString100,
-        confirmPassword: longString100
+        confirmPassword: longString100,
       };
 
       const response = await request(app).post("/v1/user").send(invalidData);
@@ -37,36 +37,36 @@ describe("User Routes - Character Limits Integration Tests", () => {
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty("errors");
       const errors = response.body.errors;
-      
+
       // Valida mensagens específicas do Zod
-      expect(errors.some(e => e.message.includes("50 caracteres"))).toBe(true); // Firstname/Surname
-      expect(errors.some(e => e.message.includes("100 caracteres"))).toBe(true); // Password
+      expect(errors.some((e) => e.message.includes("50 caracteres"))).toBe(true); // Firstname/Surname
+      expect(errors.some((e) => e.message.includes("100 caracteres"))).toBe(true); // Password
     });
   });
 
   describe("PATCH /v1/user/:id", () => {
     it("Deve retornar 400 se firstname ou surname excederem limite de 50 caracteres na atualização", async () => {
-       const user = await createTestUser({ email: "update-limits@test.com" });
-       const token = generateToken({ sub: user.id, role: "USER" });
+      const user = await createTestUser({ email: "update-limits@test.com" });
+      const token = generateToken({ sub: user.id, role: "USER" });
 
-       const invalidData = {
-         firstname: longString50,
-         surname: longString50
-       };
+      const invalidData = {
+        firstname: longString50,
+        surname: longString50,
+      };
 
-       const response = await request(app)
-         .patch(`/v1/user/${user.id}`)
-         .set("Authorization", `Bearer ${token}`)
-         .send(invalidData);
+      const response = await request(app)
+        .patch(`/v1/user/${user.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send(invalidData);
 
-       expect(response.status).toBe(400);
-       expect(response.body).toHaveProperty("errors");
-       
-       const errors = response.body.errors;
-        // Valida se capturou o erro de limite de caracteres
-        // O update-user.validator.js tem mensagens customizadas em PT-BR:
-        // "Nome deve ter no máximo 50 caracteres" / "Sobrenome deve ter no máximo 50 caracteres"
-        expect(JSON.stringify(errors)).toMatch(/50/);
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("errors");
+
+      const errors = response.body.errors;
+      // Valida se capturou o erro de limite de caracteres
+      // O update-user.validator.js tem mensagens customizadas em PT-BR:
+      // "Nome deve ter no máximo 50 caracteres" / "Sobrenome deve ter no máximo 50 caracteres"
+      expect(JSON.stringify(errors)).toMatch(/50/);
     });
   });
 });
