@@ -5,7 +5,11 @@ const SearchProductResponseDto = require("../dto/response/search-product.respons
  * @swagger
  * /v1/product/search:
  *   get:
- *     summary: Busca produtos com filtros
+ *     summary: Busca produtos com filtros e paginação
+ *     description: |
+ *       - Retorna uma lista paginada de produtos com suas relações (imagens, opções, categorias).
+ *       - Suporta filtros por nome/descrição, categorias, faixa de preço e opções.
+ *       - Endpoint público (não requer autenticação).
  *     tags:
  *       - Produtos
  *     parameters:
@@ -40,23 +44,35 @@ const SearchProductResponseDto = require("../dto/response/search-product.respons
  *         name: price-range
  *         schema:
  *           type: string
- *         description: Faixa de preço (min-max)
+ *         description: Faixa de preço no formato "min-max"
  *     responses:
  *       200:
- *         description: Lista de produtos encontrada
+ *         description: Lista de produtos retornada com sucesso
  *       400:
- *         description: Erro nos parâmetros de busca
+ *         description: Parâmetros de consulta inválidos
+ */
+
+/**
+ * Controller responsável pela busca paginada de produtos.
+ * Recebe a requisição HTTP com filtros e delega ao serviço de busca.
  */
 class SearchProductController {
+  /**
+   * Processa a requisição de busca de produtos com filtros e paginação.
+   * Os parâmetros validados podem estar em res.locals.searchParams ou req.query.
+   * @param {import('express').Request} req - Objeto de requisição Express.
+   * @param {import('express').Response} res - Objeto de resposta Express.
+   * @returns {Promise<void>} Resposta JSON com lista paginada de produtos (200).
+   */
   async handle(req, res) {
-    const { 
-      page, 
-      limit, 
-      fields, 
-      match, 
-      category_ids, 
-      "price-range": priceRange, 
-      option 
+    const {
+      page,
+      limit,
+      fields,
+      match,
+      category_ids,
+      "price-range": priceRange,
+      option,
     } = res.locals.searchParams || req.query;
 
     const result = await SearchProductService.execute({

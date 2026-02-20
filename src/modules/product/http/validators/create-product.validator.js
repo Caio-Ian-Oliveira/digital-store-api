@@ -1,21 +1,20 @@
 const { z } = require("zod");
 
-// Schema de imagem (apenas URL do Cloudinary)
+/** Schema Zod de validação para criação de imagem de produto (URL do Cloudinary). */
 const imageSchema = z.object({
-  type: z.string({ required_error: "Image type is required" }),
-  content: z.string({ required_error: "Image URL is required" }).url("Content must be a valid URL"),
+  type: z.string({ required_error: "Tipo da imagem é obrigatório" }),
+  content: z.string({ required_error: "URL da imagem é obrigatória" }).url("Conteúdo deve ser uma URL válida"),
 });
 
-// Schema de opção
+/** Schema Zod de validação para opções de produto. */
 const optionSchema = z
   .object({
-    title: z.string({ required_error: "Option title is required" }).min(1, "Option title is required").max(30, "Option title must be at most 30 characters"),
+    title: z.string({ required_error: "Título da opção é obrigatório" }).min(1, "Título da opção é obrigatório").max(30, "Título da opção deve ter no máximo 30 caracteres"),
     shape: z.enum(["square", "circle"]).optional(),
     radius: z.number().int().optional(),
     type: z.enum(["text", "color"]).optional(),
-    values: z.array(z.string().max(255, "Option value must be at most 255 characters")).optional(),
+    values: z.array(z.string().max(255, "Valor da opção deve ter no máximo 255 caracteres")).optional(),
   })
-  // Normaliza "value" para "values" (payload da documentação usa ambos)
   .transform((data) => {
     if (data.value && !data.values) {
       data.values = data.value;
@@ -24,18 +23,21 @@ const optionSchema = z
     return data;
   });
 
-// Schema principal de criação de produto
+/**
+ * Schema Zod de validação para criação de produto.
+ * Valida todos os campos obrigatórios e opcionais, incluindo imagens, opções e categorias.
+ */
 const createProductSchema = z
   .object({
     enabled: z.boolean().default(false),
-    name: z.string({ required_error: "Name is required" }).min(1, "Name is required").max(100, "Name must be at most 100 characters"),
-    slug: z.string({ required_error: "Slug is required" }).min(1, "Slug is required").max(100, "Slug must be at most 100 characters"),
+    name: z.string({ required_error: "Nome é obrigatório" }).min(1, "Nome é obrigatório").max(100, "Nome deve ter no máximo 100 caracteres"),
+    slug: z.string({ required_error: "Slug é obrigatório" }).min(1, "Slug é obrigatório").max(100, "Slug deve ter no máximo 100 caracteres"),
     use_in_menu: z.boolean().default(false),
-    stock: z.number().int().min(0, "Stock cannot be negative").default(0),
-    description: z.string().max(1000, "Description must be at most 1000 characters").optional(),
-    price: z.number({ required_error: "Price is required" }).positive("Price must be positive"),
-    price_with_discount: z.number().positive("Price with discount must be positive").optional(),
-    category_ids: z.array(z.string().uuid("Each category_id must be a valid UUID")).default([]),
+    stock: z.number().int().min(0, "Estoque não pode ser negativo").default(0),
+    description: z.string().max(1000, "Descrição deve ter no máximo 1000 caracteres").optional(),
+    price: z.number({ required_error: "Preço é obrigatório" }).positive("Preço deve ser positivo"),
+    price_with_discount: z.number().positive("Preço com desconto deve ser positivo").optional(),
+    category_ids: z.array(z.string().uuid("Cada category_id deve ser um UUID válido")).default([]),
     images: z.array(imageSchema).default([]),
     options: z.array(optionSchema).default([]),
   })
@@ -46,12 +48,18 @@ const createProductSchema = z
       return data.price_with_discount <= data.price;
     },
     {
-      message: "Price with discount must be less than or equal to price",
+      message: "Preço com desconto deve ser menor ou igual ao preço",
       path: ["price_with_discount"],
     },
   );
 
-// Middleware para usar na rota
+/**
+ * Middleware Express que valida o body da requisição contra o createProductSchema.
+ * Retorna 400 com erros por campo se a validação falhar, caso contrário segue para o próximo handler.
+ * @param {import('express').Request} req - Objeto de requisição do Express.
+ * @param {import('express').Response} res - Objeto de resposta do Express.
+ * @param {import('express').NextFunction} next - Função next do Express.
+ */
 const createProductValidator = (req, res, next) => {
   const result = createProductSchema.safeParse(req.body);
 
@@ -63,7 +71,6 @@ const createProductValidator = (req, res, next) => {
     return res.status(400).json({ errors });
   }
 
-  // Substitui o body pelo resultado validado/transformado
   req.body = result.data;
   next();
 };

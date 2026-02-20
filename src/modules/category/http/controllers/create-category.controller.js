@@ -32,7 +32,18 @@ const CreateCategoryService = require("../../core/services/create-category.servi
  *       400:
  *         description: Erro de validação
  */
+
+/**
+ * Controller responsável pela criação de categorias.
+ * Recebe a requisição HTTP e delega ao serviço de criação.
+ */
 class CreateCategoryController {
+  /**
+   * Processa a requisição de criação de categoria.
+   * @param {import('express').Request} req - Objeto de requisição Express.
+   * @param {import('express').Response} res - Objeto de resposta Express.
+   * @returns {Promise<void>} Resposta JSON com a categoria criada (201).
+   */
   async handle(req, res) {
     const category = await CreateCategoryService.execute(req.body);
     return res.status(201).json(category);

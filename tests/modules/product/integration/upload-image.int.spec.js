@@ -28,6 +28,8 @@ const productRoutes = require("../../../../src/modules/product/routes/product.ro
 const app = express();
 app.use(express.json());
 app.use(productRoutes);
+const errorHandler = require("../../../../src/shared/middlewares/error-handler.middleware");
+app.use(errorHandler);
 
 describe("Upload Image - Integration Tests", () => {
   const adminPayload = { sub: "admin-id", role: "ADMIN", email: "admin@test.com" };
@@ -167,7 +169,7 @@ describe("Upload Image - Integration Tests", () => {
       expect.arrayContaining([
         expect.objectContaining({
           field: "content",
-          message: expect.stringContaining("empty"),
+          message: expect.stringContaining("vazio"),
         }),
       ])
     );

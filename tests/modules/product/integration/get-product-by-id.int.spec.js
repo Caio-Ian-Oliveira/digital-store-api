@@ -6,6 +6,8 @@ const productRoutes = require("../../../../src/modules/product/routes/product.ro
 const app = express();
 app.use(express.json());
 app.use(productRoutes);
+const errorHandler = require("../../../../src/shared/middlewares/error-handler.middleware");
+app.use(errorHandler);
 
 describe("Get Product By ID - Integration Tests", () => {
   beforeAll(async () => {
@@ -82,10 +84,10 @@ describe("Get Product By ID - Integration Tests", () => {
     expect(response.body.errors).toBeDefined();
   });
 
-  it("GET /v1/product/:id - Deve retornar 400 se produto não for encontrado (Service)", async () => {
+  it("GET /v1/product/:id - Deve retornar 404 se produto não for encontrado (Service)", async () => {
     const response = await request(app).get("/v1/product/999999");
 
-    expect(response.status).toBe(400);
-    expect(response.body.error).toBe("Product not found");
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe("Recurso não encontrado.");
   });
 });

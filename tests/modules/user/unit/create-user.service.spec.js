@@ -75,7 +75,7 @@ describe("CreateUserService - Unit Tests", () => {
         confirmPassword: "differentPassword",
       };
 
-      await expect(createUserService.execute(invalidData)).rejects.toThrow("Passwords do not match");
+      await expect(createUserService.execute(invalidData)).rejects.toThrow("As senhas não coincidem.");
 
       expect(userRepository.findByEmail).not.toHaveBeenCalled();
       expect(userRepository.create).not.toHaveBeenCalled();

@@ -69,14 +69,24 @@
 const UpdateCategoryService = require("../../core/services/update-category.service");
 const UpdateCategoryResponseDto = require("../dto/response/update-category.response.dto");
 
+/**
+ * Controller responsável pela atualização de categorias.
+ * Recebe a requisição HTTP e delega ao serviço de atualização.
+ */
 class UpdateCategoryController {
-    async handle(req, res) {
-        const targetCategoryId = req.params.id;
-        const body = req.body;
-        const updatedCategory = await UpdateCategoryService.execute(targetCategoryId, body);
+  /**
+   * Processa a requisição de atualização de categoria.
+   * @param {import('express').Request} req - Objeto de requisição Express (params.id, body).
+   * @param {import('express').Response} res - Objeto de resposta Express.
+   * @returns {Promise<void>} Resposta JSON com a categoria atualizada (200).
+   */
+  async handle(req, res) {
+    const targetCategoryId = req.params.id;
+    const body = req.body;
+    const updatedCategory = await UpdateCategoryService.execute(targetCategoryId, body);
 
-        return res.json(UpdateCategoryResponseDto.toResponse(updatedCategory));
-    }
+    return res.json(UpdateCategoryResponseDto.toResponse(updatedCategory));
+  }
 }
 
 module.exports = new UpdateCategoryController();

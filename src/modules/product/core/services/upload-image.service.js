@@ -1,8 +1,18 @@
 const cloudinary = require("../../../../config/cloudinary.config");
 
+/**
+ * Serviço responsável pelo upload de imagens para o Cloudinary.
+ * Recebe o conteúdo em base64 e o tipo MIME, e retorna a URL segura.
+ */
 class UploadImageService {
+  /**
+   * Faz upload de uma imagem em base64 para o Cloudinary.
+   * @param {Object} imageData - Dados da imagem.
+   * @param {string} imageData.type - Tipo MIME da imagem (ex: "image/png").
+   * @param {string} imageData.content - Conteúdo da imagem em base64.
+   * @returns {Promise<{url: string, public_id: string}>} URL segura e ID público no Cloudinary.
+   */
   async execute({ type, content }) {
-    // Faz upload do base64 para o Cloudinary
     const dataUri = `data:${type};base64,${content}`;
 
     const result = await cloudinary.uploader.upload(dataUri, {

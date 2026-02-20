@@ -47,7 +47,7 @@ describe("UpdateProductService - Testes Unitários", () => {
 
       await expect(updateProductService.execute(targetProductId, updateData))
         .rejects
-        .toThrow("Product not found");
+        .toThrow("Recurso não encontrado.");
 
       expect(productRepository.findById).toHaveBeenCalledWith(targetProductId);
       expect(productRepository.updateProduct).not.toHaveBeenCalled();

@@ -1,7 +1,34 @@
 const { Product, ProductImage, ProductOption, Category, sequelize, Sequelize } = require("../../../models/");
-const { processImage } = require("../../../shared/utils/image.utils");
 
+/**
+ * Repositório responsável pelo acesso a dados de produtos.
+ * Encapsula todas as operações de persistência usando os models Sequelize.
+ * Gerencia transações para operações que envolvem múltiplas tabelas.
+ */
 class ProductRepository {
+  /**
+   * Busca um produto pelo nome ou slug (verificação de duplicidade).
+   * @param {string} name - Nome do produto.
+   * @param {string} slug - Slug do produto.
+   * @returns {Promise<Object|null>} O produto encontrado ou null.
+   */
+  async findByNameOrSlug(name, slug) {
+    return await Product.findOne({
+      where: {
+        [Sequelize.Op.or]: [{ name }, { slug }],
+      },
+    });
+  }
+
+  /**
+   * Cria um novo produto com imagens, opções e categorias em uma transação atômica.
+   * @param {Object} params - Dados de criação.
+   * @param {Object} params.productData - Dados básicos do produto.
+   * @param {string[]} params.images - URLs das imagens já processadas.
+   * @param {Object[]} params.options - Opções do produto (title, shape, radius, type, values).
+   * @param {string[]} params.categoryIds - UUIDs das categorias a serem associadas.
+   * @returns {Promise<Object>} O produto criado com todas as relações carregadas.
+   */
   async createProduct({ productData, images, options, categoryIds }) {
     const transaction = await sequelize.transaction();
 
@@ -9,17 +36,13 @@ class ProductRepository {
       // 1. Cria o produto
       const createdProduct = await Product.create(productData, { transaction });
 
-      // 2. Processa e cria as imagens (upload para Cloudinary)
+      // 2. Cria os registros de imagens (URLs já processadas pelo service)
       if (images && images.length > 0) {
-        const imageRecords = [];
-        for (const image of images) {
-          const path = await processImage(image.content, image.type);
-          imageRecords.push({
-            product_id: createdProduct.id,
-            enabled: true,
-            path,
-          });
-        }
+        const imageRecords = images.map((url) => ({
+          product_id: createdProduct.id,
+          enabled: true,
+          path: url,
+        }));
         await ProductImage.bulkCreate(imageRecords, { transaction });
       }
 
@@ -49,7 +72,7 @@ class ProductRepository {
           { model: ProductOption, as: "options" },
           { model: Category, as: "categories", attributes: ["id"] },
         ],
-        transaction, // Garante que lê da transação atual
+        transaction,
       });
 
       await transaction.commit();
@@ -60,11 +83,25 @@ class ProductRepository {
       throw error;
     }
   }
+
+  /**
+   * Busca produtos com filtros avançados e paginação.
+   * Suporta filtros por nome/descrição, categorias, faixa de preço e opções.
+   * @param {Object} params - Parâmetros de busca.
+   * @param {number} [params.limit=12] - Limite de itens por página (-1 para todos).
+   * @param {number} [params.page=1] - Número da página.
+   * @param {string} [params.fields] - Campos a serem retornados (separados por vírgula).
+   * @param {string} [params.match] - Termo de busca para nome ou descrição.
+   * @param {string} [params.category_ids] - IDs das categorias (separados por vírgula).
+   * @param {string} [params.priceRange] - Faixa de preço no formato "min-max".
+   * @param {Object} [params.option] - Filtros de opções (ex: { "45": "GG,PP" }).
+   * @returns {Promise<{data: Object[], total: number, limit: number, page: number}>} Resultado paginado.
+   */
   async searchProducts({ limit, page, fields, match, category_ids, priceRange, option } = {}) {
     const queryOptions = {
       where: {},
       include: [],
-      distinct: true, // Importante para contar produtos corretamente com includes many-to-many
+      distinct: true,
     };
 
     // 1. Paginação
@@ -76,11 +113,10 @@ class ProductRepository {
       queryOptions.offset = (Math.max(safePage, 1) - 1) * safeLimit;
     }
 
-    // 2. Projeção (fields)
-    queryOptions.attributes = ["id", "name", "slug", "price", "price_with_discount", "description", "enabled", "stock", "use_in_menu"]; // Default attributes
+    // 2. Projeção de campos
+    queryOptions.attributes = ["id", "name", "slug", "price", "price_with_discount", "description", "enabled", "stock", "use_in_menu"];
     if (fields) {
       const requestedFields = fields.split(",").map((f) => f.trim());
-      // Garante que ID sempre venha para montar as relações se necessário, ou lógica de frontend
       if (!requestedFields.includes("id")) requestedFields.unshift("id");
       queryOptions.attributes = requestedFields;
     }
@@ -94,7 +130,7 @@ class ProductRepository {
       ];
     }
 
-    // 3.2 Category IDs
+    // 3.2 Categorias
     if (category_ids) {
       const ids = category_ids.split(",").map((id) => id.trim());
       queryOptions.include.push({
@@ -102,13 +138,10 @@ class ProductRepository {
         as: "categories",
         where: { id: { [Sequelize.Op.in]: ids } },
         attributes: ["id", "name", "slug"],
-        through: { attributes: [] }, // Não trazer dados da tabela pivo
+        through: { attributes: [] },
       });
     } else {
-      // Se não filtrar, ainda pode querer trazer as categorias? 
-      // O padrão REST costuma trazer relacionamentos apenas se solicitado ou by default.
-      // Vamos trazer para ficar completo, mas sem filtro WHERE.
-       queryOptions.include.push({
+      queryOptions.include.push({
         model: Category,
         as: "categories",
         attributes: ["id", "name", "slug"],
@@ -116,7 +149,7 @@ class ProductRepository {
       });
     }
 
-    // 3.3 Price Range
+    // 3.3 Faixa de preço
     if (priceRange) {
       const [min, max] = priceRange.split("-").map(Number);
       if (!isNaN(min) && !isNaN(max)) {
@@ -124,21 +157,19 @@ class ProductRepository {
       }
     }
 
-    // 3.4 Options
-    // Ex: option[45]=GG,PP -> option ID 45, values "GG" OR "PP"
-    // Como os values são salvos como string JSON '["GG", "PP"]', usamos LIKE.
+    // 3.4 Opções do produto (ex: option[45]=GG,PP)
     if (option) {
       const optionConditions = [];
-      
+
       for (const [optionId, valuesString] of Object.entries(option)) {
         const values = valuesString.split(",");
         const valueConditions = values.map((val) => ({
-             values: { [Sequelize.Op.like]: `%${val}%` }
+          values: { [Sequelize.Op.like]: `%${val}%` },
         }));
 
         optionConditions.push({
           id: optionId,
-          [Sequelize.Op.or]: valueConditions
+          [Sequelize.Op.or]: valueConditions,
         });
       }
 
@@ -147,26 +178,25 @@ class ProductRepository {
           model: ProductOption,
           as: "options",
           where: {
-            [Sequelize.Op.and]: optionConditions
+            [Sequelize.Op.and]: optionConditions,
           },
-          required: true, // Isso força um INNER JOIN, trazendo apenas produtos que dão match na condição
-          attributes: ["id", "title", "values", "shape", "radius", "type"]
+          required: true,
+          attributes: ["id", "title", "values", "shape", "radius", "type"],
         });
       }
     } else {
-         // Inclui options mesmo sem filtro para retorno rico
-         queryOptions.include.push({
-            model: ProductOption,
-            as: "options",
-            attributes: ["id", "title", "values", "shape", "radius", "type"]
-        });
+      queryOptions.include.push({
+        model: ProductOption,
+        as: "options",
+        attributes: ["id", "title", "values", "shape", "radius", "type"],
+      });
     }
-    
+
     // Sempre incluir imagens
     queryOptions.include.push({
-        model: ProductImage,
-        as: "images",
-        attributes: ["id", "path", "enabled"]
+      model: ProductImage,
+      as: "images",
+      attributes: ["id", "path", "enabled"],
     });
 
     const { count, rows } = await Product.findAndCountAll(queryOptions);
@@ -179,6 +209,11 @@ class ProductRepository {
     };
   }
 
+  /**
+   * Busca um produto pelo seu identificador primário, incluindo relações.
+   * @param {number} targetProductId - ID numérico do produto.
+   * @returns {Promise<Object|null>} O produto com imagens, opções e categorias, ou null.
+   */
   async findById(targetProductId) {
     const product = await Product.findByPk(targetProductId, {
       include: [
@@ -191,6 +226,13 @@ class ProductRepository {
     return product;
   }
 
+  /**
+   * Atualiza um produto existente em uma transação atômica.
+   * Substitui imagens, opções e categorias se fornecidas.
+   * @param {number} targetProductId - ID numérico do produto.
+   * @param {Object} body - Dados de atualização (campos opcionais).
+   * @returns {Promise<Object>} O produto atualizado com suas relações.
+   */
   async updateProduct(targetProductId, body) {
     const transaction = await sequelize.transaction();
     try {
@@ -202,25 +244,21 @@ class ProductRepository {
 
       const product = await Product.findByPk(targetProductId, { transaction });
 
-      // 2. Atualiza Imagens (Se fornecido, substitui todas)
+      // 2. Atualiza imagens (substitui todas se fornecido — URLs já processadas pelo service)
       if (body.images) {
         await ProductImage.destroy({ where: { product_id: targetProductId }, transaction });
-        
+
         if (body.images.length > 0) {
-          const imageRecords = [];
-          for (const image of body.images) {
-             const path = await processImage(image.content, image.type);
-             imageRecords.push({
-               product_id: targetProductId,
-               enabled: true,
-               path,
-             });
-          }
+          const imageRecords = body.images.map((url) => ({
+            product_id: targetProductId,
+            enabled: true,
+            path: url,
+          }));
           await ProductImage.bulkCreate(imageRecords, { transaction });
         }
       }
 
-      // 3. Atualiza Opções (Se fornecido, substitui todas)
+      // 3. Atualiza opções (substitui todas se fornecido)
       if (body.options) {
         await ProductOption.destroy({ where: { product_id: targetProductId }, transaction });
 
@@ -238,7 +276,7 @@ class ProductRepository {
         }
       }
 
-      // 4. Atualiza Categorias (Se fornecido, substitui)
+      // 4. Atualiza categorias (substitui se fornecido)
       if (body.category_ids) {
         await product.setCategories(body.category_ids, { transaction });
       }
@@ -246,31 +284,35 @@ class ProductRepository {
       await transaction.commit();
 
       return this.findById(targetProductId);
-
     } catch (error) {
       await transaction.rollback();
       throw error;
     }
   }
 
+  /**
+   * Realiza o hard delete de um produto em uma transação atômica.
+   * Imagens e opções são deletadas automaticamente via CASCADE do banco.
+   * @param {number} targetProductId - ID numérico do produto.
+   * @returns {Promise<boolean|null>} true se deletado, null se não encontrado.
+   */
   async deleteProduct(targetProductId) {
     const transaction = await sequelize.transaction();
     try {
-        const product = await Product.findByPk(targetProductId);
-        
-        if (!product) {
-            throw new Error('Product not found');
-        }
+      const product = await Product.findByPk(targetProductId);
 
-        // Hard Delete - devido ao CASCADE configurado nas migrations, 
-        // as imagens e options serão deletadas automaticamente pelo banco
-        await product.destroy({ transaction });
-
-        await transaction.commit();
-        return true;
-    } catch (error) {
+      if (!product) {
         await transaction.rollback();
-        throw error;
+        return null;
+      }
+
+      await product.destroy({ transaction });
+
+      await transaction.commit();
+      return true;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
     }
   }
 }

@@ -139,6 +139,6 @@ describe("Create Category - Integration Tests", () => {
     
     // Verifica se os erros de validação contêm mensagens sobre o limite
     const errors = response.body.errors;
-    expect(errors.some(e => e.message.includes("50 characters"))).toBe(true);
+    expect(errors.some(e => e.message.includes("50 caracteres"))).toBe(true);
   });
 });

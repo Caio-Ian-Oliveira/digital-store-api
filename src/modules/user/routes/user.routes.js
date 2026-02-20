@@ -10,6 +10,20 @@ const authVerificationMiddleware = require("../../../shared/auth/auth-verificati
 const { loginValidator } = require("../http/validators/login.validator");
 const { updateUserValidator } = require("../http/validators/update-user.validator");
 const asyncHandler = require("../../../shared/middlewares/async-handler.middleware");
+
+/**
+ * Router Express para o módulo de usuários.
+ * Define todas as rotas do recurso /v1/user com seus middlewares.
+ *
+ * Rotas públicas:
+ * - POST /v1/user/login → Autenticação (loginValidator → LoginController)
+ * - POST /v1/user       → Cadastro (createUserValidator → CreateUserController)
+ *
+ * Rotas autenticadas (requerem Bearer Token JWT):
+ * - GET    /v1/user/:id → Busca por ID (authVerification → GetUserByIdController)
+ * - PATCH  /v1/user/:id → Atualização de perfil (authVerification → updateUserValidator → UpdateUserController)
+ * - DELETE /v1/user/:id → Exclusão de conta (authVerification → DeleteUserController)
+ */
 const router = express.Router();
 
 router.post("/v1/user/login", loginValidator, asyncHandler(LoginController.handle));
@@ -17,4 +31,5 @@ router.post("/v1/user", createUserValidator, asyncHandler(createUserController.h
 router.get("/v1/user/:id", authVerificationMiddleware, asyncHandler(GetUserByIdController.handle));
 router.patch("/v1/user/:id", authVerificationMiddleware, updateUserValidator, asyncHandler(UpdateUserController.handle));
 router.delete("/v1/user/:id", authVerificationMiddleware, asyncHandler(DeleteUserController.handle));
+
 module.exports = router;

@@ -8,6 +8,8 @@ const productRoutes = require("../../../../src/modules/product/routes/product.ro
 const app = express();
 app.use(express.json());
 app.use(productRoutes);
+const errorHandler = require("../../../../src/shared/middlewares/error-handler.middleware");
+app.use(errorHandler);
 
 describe("Update Product - Integration Tests", () => {
   let testProduct;
@@ -141,7 +143,7 @@ describe("Update Product - Integration Tests", () => {
 
     expect(response.status).toBe(400);
     expect(response.body.errors).toEqual(
-      expect.arrayContaining([expect.objectContaining({ field: "price", message: expect.stringContaining("positive") })])
+      expect.arrayContaining([expect.objectContaining({ field: "price", message: expect.stringContaining("positivo") })])
     );
   });
 
@@ -207,9 +209,9 @@ describe("Update Product - Integration Tests", () => {
 
     // Initial implementation logic might throw error or return 404/400 depending on service/repo.
     // Controller catches error -> returns 400.
-    // Service throws "Product not found".
+    // Service lança "Recurso não encontrado.".
     expect(response.status).toBe(404);
-    expect(response.body.error).toBe("Product not found");
+    expect(response.body.message).toMatch("Recurso não encontrado.");
   });
 
   it("PATCH /v1/product/:id - Deve retornar 400 se o id for inválido (não numérico)", async () => {
@@ -303,9 +305,9 @@ describe("Update Product - Integration Tests", () => {
     expect(response.body).toHaveProperty("errors");
     
     const errors = response.body.errors;
-    expect(errors.some(e => e.message.includes("100 characters"))).toBe(true); // name, slug
-    expect(errors.some(e => e.message.includes("1000 characters"))).toBe(true); // description
-    expect(errors.some(e => e.message.includes("30 characters"))).toBe(true); // option title
-    expect(errors.some(e => e.message.includes("255 characters"))).toBe(true); // option value
+    expect(errors.some(e => e.message.includes("100 caracteres"))).toBe(true); // name, slug
+    expect(errors.some(e => e.message.includes("1000 caracteres"))).toBe(true); // description
+    expect(errors.some(e => e.message.includes("30 caracteres"))).toBe(true); // option title
+    expect(errors.some(e => e.message.includes("255 caracteres"))).toBe(true); // option value
   });
 });

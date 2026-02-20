@@ -33,7 +33,7 @@ describe("GetCategoryByIdService - Unit Tests", () => {
     it("deve lançar erro quando a categoria não existe", async () => {
       categoryRepository.findById.mockResolvedValue(null);
 
-      await expect(getCategoryByIdService.execute("non-existent-id")).rejects.toThrow("Category not found.");
+      await expect(getCategoryByIdService.execute("non-existent-id")).rejects.toThrow("Recurso não encontrado.");
       expect(categoryRepository.findById).toHaveBeenCalledWith("non-existent-id");
     });
 

@@ -48,7 +48,7 @@ describe("DeleteCategoryService - Unit Tests", () => {
 
       await expect(
         deleteCategoryService.execute("non-existent-id"),
-      ).rejects.toThrow("Category not found.");
+      ).rejects.toThrow("Recurso não encontrado.");
 
       expect(categoryRepository.findById).toHaveBeenCalledWith("non-existent-id");
       expect(categoryRepository.softDelete).not.toHaveBeenCalled();

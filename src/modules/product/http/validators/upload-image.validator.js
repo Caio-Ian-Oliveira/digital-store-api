@@ -1,22 +1,29 @@
 const { z } = require("zod");
 
-// Schema para upload de imagem
+/**
+ * Schema Zod de validação para upload de imagem.
+ * Valida que o tipo MIME é de imagem e que o conteúdo não está vazio.
+ */
 const uploadImageSchema = z.object({
-  type: z.string({ required_error: "Image type is required" }).refine(
+  type: z.string({ required_error: "Tipo da imagem é obrigatório" }).refine(
     (val) => val.startsWith("image/"),
-    { message: "Type must be a valid image mime type (e.g., image/png, image/jpeg)" }
+    { message: "Tipo deve ser um MIME type de imagem válido (ex: image/png, image/jpeg)" }
   ),
-  content: z.string({ required_error: "Image content is required" }).min(1, "Image content cannot be empty"),
+  content: z.string({ required_error: "Conteúdo da imagem é obrigatório" }).min(1, "Conteúdo da imagem não pode ser vazio"),
 });
 
-// Middleware para usar na rota
+/**
+ * Middleware Express que valida o body da requisição contra o uploadImageSchema.
+ * Pula validação JSON se o upload for via arquivo (multer).
+ * @param {import('express').Request} req - Objeto de requisição do Express.
+ * @param {import('express').Response} res - Objeto de resposta do Express.
+ * @param {import('express').NextFunction} next - Função next do Express.
+ */
 const uploadImageValidator = (req, res, next) => {
-  // Se é upload de arquivo (multer), pula validação JSON
   if (req.file) {
     return next();
   }
 
-  // Valida JSON
   const result = uploadImageSchema.safeParse(req.body);
 
   if (!result.success) {

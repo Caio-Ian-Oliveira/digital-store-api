@@ -56,7 +56,7 @@ describe("UpdateCategoryService - Unit Tests", () => {
 
       await expect(
         updateCategoryService.execute("non-existent-id", updateData),
-      ).rejects.toThrow("Category not found");
+      ).rejects.toThrow("Recurso não encontrado.");
 
       expect(categoryRepository.findById).toHaveBeenCalledWith("non-existent-id");
       expect(categoryRepository.update).not.toHaveBeenCalled();

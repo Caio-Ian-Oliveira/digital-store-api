@@ -1,18 +1,19 @@
 const { z } = require("zod");
 
-// Reuse schemas from create-product but make them optional for update
+/** Schema Zod de validação para imagem de produto na atualização. */
 const imageSchema = z.object({
-  type: z.string({ required_error: "Image type is required" }),
-  content: z.string({ required_error: "Image URL is required" }).url("Content must be a valid URL"),
+  type: z.string({ required_error: "Tipo da imagem é obrigatório" }),
+  content: z.string({ required_error: "URL da imagem é obrigatória" }).url("Conteúdo deve ser uma URL válida"),
 });
 
+/** Schema Zod de validação para opções de produto na atualização. */
 const optionSchema = z
   .object({
-    title: z.string({ required_error: "Option title is required" }).min(1, "Option title is required").max(30, "Option title must be at most 30 characters"),
+    title: z.string({ required_error: "Título da opção é obrigatório" }).min(1, "Título da opção é obrigatório").max(30, "Título da opção deve ter no máximo 30 caracteres"),
     shape: z.enum(["square", "circle"]).optional(),
     radius: z.number().int().optional(),
     type: z.enum(["text", "color"]).optional(),
-    values: z.array(z.string().max(255, "Option value must be at most 255 characters")).optional(),
+    values: z.array(z.string().max(255, "Valor da opção deve ter no máximo 255 caracteres")).optional(),
   })
   .transform((data) => {
     if (data.value && !data.values) {
@@ -22,40 +23,43 @@ const optionSchema = z
     return data;
   });
 
+/**
+ * Schema Zod de validação para atualização de produto.
+ * Todos os campos são opcionais (PATCH). Valida consistência de preço
+ * e garante que ao menos um campo seja fornecido.
+ */
 const updateProductSchema = z
   .object({
     enabled: z.boolean().optional(),
-    name: z.string().min(1, "Name cannot be empty").max(100, "Name must be at most 100 characters").optional(),
-    slug: z.string().min(1, "Slug cannot be empty").max(100, "Slug must be at most 100 characters").optional(),
+    name: z.string().min(1, "Nome não pode ser vazio").max(100, "Nome deve ter no máximo 100 caracteres").optional(),
+    slug: z.string().min(1, "Slug não pode ser vazio").max(100, "Slug deve ter no máximo 100 caracteres").optional(),
     use_in_menu: z.boolean().optional(),
-    stock: z.number().int().min(0, "Stock cannot be negative").optional(),
-    description: z.string().max(1000, "Description must be at most 1000 characters").optional(),
-    price: z.number().positive("Price must be positive").optional(),
-    price_with_discount: z.number().positive("Price with discount must be positive").optional(),
-    category_ids: z.array(z.string().uuid("Each category_id must be a valid UUID")).optional(),
+    stock: z.number().int().min(0, "Estoque não pode ser negativo").optional(),
+    description: z.string().max(1000, "Descrição deve ter no máximo 1000 caracteres").optional(),
+    price: z.number().positive("Preço deve ser positivo").optional(),
+    price_with_discount: z.number().positive("Preço com desconto deve ser positivo").optional(),
+    category_ids: z.array(z.string().uuid("Cada category_id deve ser um UUID válido")).optional(),
     images: z.array(imageSchema).optional(),
     options: z.array(optionSchema).optional(),
   })
   .strict()
   .refine(
     (data) => {
-      // Validates price consistent only if both fields are present in the update payload
-      // Ideally, we should check against the DB if one is missing, but for a simple DTO validaton:
       if (data.price !== undefined && data.price_with_discount !== undefined) {
         return data.price_with_discount <= data.price;
       }
       return true;
     },
     {
-      message: "Price with discount must be less than or equal to price",
+      message: "Preço com desconto deve ser menor ou igual ao preço",
       path: ["price_with_discount"],
     }
   )
   .refine(
     (data) => Object.keys(data).length > 0, 
     {
-      message: "At least one field must be provided for update",
-      path: [], // Custom error location, or use root
+      message: "Pelo menos um campo deve ser fornecido para atualização",
+      path: [],
     }
   );
 
@@ -63,8 +67,14 @@ const paramsSchema = z.object({
   id: z.coerce.number().int().positive(),
 });
 
+/**
+ * Middleware Express que valida params e body da requisição contra os schemas de atualização.
+ * Retorna 400 com erros por campo se a validação falhar.
+ * @param {import('express').Request} req - Objeto de requisição do Express.
+ * @param {import('express').Response} res - Objeto de resposta do Express.
+ * @param {import('express').NextFunction} next - Função next do Express.
+ */
 const updateProductValidator = (req, res, next) => {
-  // Validate params
   const paramsResult = paramsSchema.safeParse(req.params);
   if (!paramsResult.success) {
     const errors = paramsResult.error.issues.map((err) => ({
@@ -74,7 +84,6 @@ const updateProductValidator = (req, res, next) => {
     return res.status(400).json({ errors });
   }
 
-  // Validate body
   const bodyResult = updateProductSchema.safeParse(req.body);
   if (!bodyResult.success) {
     const errors = bodyResult.error.issues.map((err) => ({
@@ -84,7 +93,6 @@ const updateProductValidator = (req, res, next) => {
     return res.status(400).json({ errors });
   }
 
-  // Assign validated data
   req.params.id = paramsResult.data.id;
   req.body = bodyResult.data;
   

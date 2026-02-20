@@ -1,5 +1,6 @@
 const UpdateUserService = require("../../core/services/update-user.service");
-const UpdateUserResponseDto = require("../dto/response/update-user.response.dto")
+const UpdateUserResponseDto = require("../dto/response/update-user.response.dto");
+
 /**
  * @swagger
  * /v1/user/{id}:
@@ -67,13 +68,23 @@ const UpdateUserResponseDto = require("../dto/response/update-user.response.dto"
  *                   type: string
  */
 
+/**
+ * Controller responsável por processar requisições de atualização de perfil.
+ * Delega a autorização e lógica de atualização ao UpdateUserService.
+ */
 class UpdateUserController {
+  /**
+   * Processa requisições PATCH /v1/user/:id.
+   * @param {import('express').Request} req - Objeto de requisição do Express.
+   * @param {import('express').Response} res - Objeto de resposta do Express.
+   * @returns {Promise<void>}
+   */
   async handle(req, res) {
     const targetUserId = req.params.id;
-    const loggedUser = req.user; // payload do token
+    const loggedUser = req.user;
 
-    const User = await UpdateUserService.execute(targetUserId, loggedUser, req.body);
-    return res.status(200).json(UpdateUserResponseDto.toResponse(User));
+    const user = await UpdateUserService.execute(targetUserId, loggedUser, req.body);
+    return res.status(200).json(UpdateUserResponseDto.toResponse(user));
   }
 }
 

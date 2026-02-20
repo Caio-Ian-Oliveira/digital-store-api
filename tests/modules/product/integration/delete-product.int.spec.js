@@ -84,7 +84,7 @@ describe('Delete Product Integration Test', () => {
             .set('Authorization', `Bearer ${adminToken}`);
 
         expect(response.status).toBe(404);
-        expect(response.body).toHaveProperty('error', 'Product not found');
+        expect(response.body).toHaveProperty('message', 'Recurso não encontrado.');
     });
 
     it('deve retornar 401 ao tentar deletar sem token', async () => {

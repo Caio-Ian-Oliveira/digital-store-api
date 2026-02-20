@@ -26,7 +26,7 @@ const DeleteUserService = require("../../core/services/delete-user.service");
  *               properties:
  *                 message:
  *                   type: string
- *                   example: User deleted successfully
+ *                   example: Usuário deletado com sucesso
  *       400:
  *         description: Erro ao remover usuário
  *         content:
@@ -38,13 +38,23 @@ const DeleteUserService = require("../../core/services/delete-user.service");
  *                   type: string
  */
 
+/**
+ * Controller responsável por processar requisições de exclusão de usuário.
+ * Delega a autorização e lógica de soft-delete ao DeleteUserService.
+ */
 class DeleteUserController {
-    async handle(req, res) {
-        const targetUserId = req.params.id;
-        const loggedUser = req.user;
-        const result = await DeleteUserService.execute({ targetUserId, loggedUser });
-        return res.status(200).json(result);
-    }
+  /**
+   * Processa requisições DELETE /v1/user/:id.
+   * @param {import('express').Request} req - Objeto de requisição do Express.
+   * @param {import('express').Response} res - Objeto de resposta do Express.
+   * @returns {Promise<void>}
+   */
+  async handle(req, res) {
+    const targetUserId = req.params.id;
+    const loggedUser = req.user;
+    const result = await DeleteUserService.execute({ targetUserId, loggedUser });
+    return res.status(200).json(result);
+  }
 }
 
 module.exports = new DeleteUserController();

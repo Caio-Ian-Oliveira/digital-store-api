@@ -79,12 +79,23 @@ const CreateProductResponseDto = require("../dto/response/create-product.respons
  *       400:
  *         description: Erro de validação
  */
+
+/**
+ * Controller responsável pela criação de produtos.
+ * Recebe a requisição HTTP e delega ao serviço de criação.
+ */
 class CreateProductController {
-    async handle(req, res) {
-        const body = req.body;
-        const createdProduct = await CreateProductService.execute(body);
-        return res.status(201).json(CreateProductResponseDto.toResponse(createdProduct));
-    }
+  /**
+   * Processa a requisição de criação de produto.
+   * @param {import('express').Request} req - Objeto de requisição Express.
+   * @param {import('express').Response} res - Objeto de resposta Express.
+   * @returns {Promise<void>} Resposta JSON com o produto criado (201).
+   */
+  async handle(req, res) {
+    const body = req.body;
+    const createdProduct = await CreateProductService.execute(body);
+    return res.status(201).json(CreateProductResponseDto.toResponse(createdProduct));
+  }
 }
 
 module.exports = new CreateProductController();
