@@ -1,5 +1,6 @@
 const CreateUserService = require("../../core/services/create-user.service");
-const CreateUserResponseDto = require("../dto/response/create-user.response.dto")
+const CreateUserResponseDto = require("../dto/response/create-user.response.dto");
+
 /**
  * @swagger
  * /v1/user:
@@ -69,7 +70,7 @@ const CreateUserResponseDto = require("../dto/response/create-user.response.dto"
  *               properties:
  *                 error:
  *                   type: string
- *                   example: Passwords do not match
+ *                   example: As senhas não coincidem
  *                 errors:
  *                   type: array
  *                   items:
@@ -80,16 +81,23 @@ const CreateUserResponseDto = require("../dto/response/create-user.response.dto"
  *                         example: email
  *                       message:
  *                         type: string
- *                         example: Invalid email
+ *                         example: Email inválido
+ */
+
+/**
+ * Controller responsável por processar requisições de criação de usuário.
+ * Delega a lógica de negócio ao CreateUserService e formata a resposta via DTO.
  */
 class CreateUserController {
+  /**
+   * Processa requisições POST /v1/user.
+   * @param {import('express').Request} req - Objeto de requisição do Express.
+   * @param {import('express').Response} res - Objeto de resposta do Express.
+   * @returns {Promise<void>}
+   */
   async handle(req, res) {
-    try {
-      const user = await CreateUserService.execute(req.body);
-      return res.status(201).json(CreateUserResponseDto.toResponse(user));
-    } catch (error) {
-      return res.status(400).json({ error: error.message });
-    }
+    const user = await CreateUserService.execute(req.body);
+    return res.status(201).json(CreateUserResponseDto.toResponse(user));
   }
 }
 

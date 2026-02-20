@@ -1,5 +1,10 @@
 const { z } = require("zod");
 
+/**
+ * Schema Zod para a resposta de criação de produto.
+ * Inclui campos do produto, imagens, opções e categorias.
+ * @type {import('zod').ZodObject}
+ */
 const createProductResponseSchema = z.object({
   id: z.number(),
   enabled: z.boolean(),
@@ -30,7 +35,16 @@ const createProductResponseSchema = z.object({
   ),
 });
 
+/**
+ * DTO de resposta para criação de produtos.
+ * Normaliza dados do Sequelize, extrai category_ids e parseia options.values.
+ */
 const CreateProductResponseDto = {
+  /**
+   * Transforma o payload do produto criado em resposta segura para a API.
+   * @param {Object} product - Instância do model Sequelize ou objeto puro.
+   * @returns {Object} Dados filtrados e normalizados pelo schema Zod.
+   */
   toResponse(product) {
     const plain = product.toJSON ? product.toJSON() : product;
 

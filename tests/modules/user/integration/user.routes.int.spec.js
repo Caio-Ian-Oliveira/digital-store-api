@@ -7,6 +7,8 @@ const { generateToken } = require("../../../../src/shared/auth/jwt");
 const app = express();
 app.use(express.json());
 app.use(routes);
+const errorHandler = require("../../../../src/shared/middlewares/error-handler.middleware");
+app.use(errorHandler);
 
 describe("User Routes - Character Limits Integration Tests", () => {
   beforeAll(async () => {
@@ -37,8 +39,8 @@ describe("User Routes - Character Limits Integration Tests", () => {
       const errors = response.body.errors;
       
       // Valida mensagens específicas do Zod
-      expect(errors.some(e => e.message.includes("50 characters"))).toBe(true); // Firstname/Surname
-      expect(errors.some(e => e.message.includes("100 characters"))).toBe(true); // Password
+      expect(errors.some(e => e.message.includes("50 caracteres"))).toBe(true); // Firstname/Surname
+      expect(errors.some(e => e.message.includes("100 caracteres"))).toBe(true); // Password
     });
   });
 
@@ -61,14 +63,10 @@ describe("User Routes - Character Limits Integration Tests", () => {
        expect(response.body).toHaveProperty("errors");
        
        const errors = response.body.errors;
-       // Valida se capturou o erro de limite
-       // Zod default message for max usually contains the limit
-       // Mas no update-user.validator.js não tem mensagem customizada no .max(50), 
-       // então o Zod retorna algo como "String must contain at most 50 character(s)"
-       // Vamos verificar genericamente ou se tiver mensagem customizada
-       // Olhando o arquivo update-user.validator.js: field: z.string().min(2).max(50).optional()
-       // Mensagem padrão do Zod
-       expect(JSON.stringify(errors)).toMatch(/50/);
+        // Valida se capturou o erro de limite de caracteres
+        // O update-user.validator.js tem mensagens customizadas em PT-BR:
+        // "Nome deve ter no máximo 50 caracteres" / "Sobrenome deve ter no máximo 50 caracteres"
+        expect(JSON.stringify(errors)).toMatch(/50/);
     });
   });
 });

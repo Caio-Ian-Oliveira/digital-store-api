@@ -1,15 +1,24 @@
 const { z } = require("zod");
 
-// Definição do Schema para criação de categoria
+/**
+ * Schema Zod de validação para criação de categoria.
+ * Utiliza modo strict para rejeitar propriedades inesperadas.
+ */
 const createCategorySchema = z
   .object({
-    name: z.string({ required_error: "Name is required" }).min(1, "Name is required").max(50, "Name must be at most 50 characters"),
-    slug: z.string({ required_error: "Slug is required" }).min(1, "Slug is required").max(50, "Slug must be at most 50 characters"),
+    name: z.string({ required_error: "Nome é obrigatório" }).min(1, "Nome é obrigatório").max(50, "Nome deve ter no máximo 50 caracteres"),
+    slug: z.string({ required_error: "Slug é obrigatório" }).min(1, "Slug é obrigatório").max(50, "Slug deve ter no máximo 50 caracteres"),
     use_in_menu: z.boolean().optional(),
   })
   .strict();
 
-// Middleware para usar na rota
+/**
+ * Middleware Express que valida o body da requisição contra o createCategorySchema.
+ * Retorna 400 com erros por campo se a validação falhar.
+ * @param {import('express').Request} req - Objeto de requisição do Express.
+ * @param {import('express').Response} res - Objeto de resposta do Express.
+ * @param {import('express').NextFunction} next - Função next do Express.
+ */
 const createCategoryValidator = (req, res, next) => {
   const result = createCategorySchema.safeParse(req.body);
 

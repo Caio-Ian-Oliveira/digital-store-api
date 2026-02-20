@@ -45,18 +45,22 @@
 const GetCategoryByIdService = require("../../core/services/get-category-by-id.service");
 const GetCategoryByIdResponseDto = require("../dto/response/get-category-by-id.response.dto");
 
+/**
+ * Controller responsável pela busca de categoria por ID.
+ * Recebe a requisição HTTP e delega ao serviço de busca.
+ */
 class GetCategoryByIdController {
+  /**
+   * Processa a requisição de busca de categoria por ID.
+   * @param {import('express').Request} req - Objeto de requisição Express (params.id).
+   * @param {import('express').Response} res - Objeto de resposta Express.
+   * @returns {Promise<void>} Resposta JSON com a categoria encontrada (200).
+   */
   async handle(req, res) {
-    try {
-      const targetCategoryId = req.params.id;
-      const category = await GetCategoryByIdService.execute(targetCategoryId);
-      return res.status(200).json(GetCategoryByIdResponseDto.toResponse(category));
-    } catch (error) {
-      if (error.message === "Category not found.") {
-        return res.status(404).json({ error: "Category not found" });
-      }
-      return res.status(400).json({ error: error.message });
-    }
+    const targetCategoryId = req.params.id;
+    const category = await GetCategoryByIdService.execute(targetCategoryId);
+    return res.status(200).json(GetCategoryByIdResponseDto.toResponse(category));
   }
 }
+
 module.exports = new GetCategoryByIdController();

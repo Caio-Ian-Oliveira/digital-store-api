@@ -44,16 +44,22 @@
 const GetUserByIdService = require("../../core/services/get-user-by-id.service");
 const GetUserByIdResponseDto = require("../dto/response/get-user-by-id.response.dto");
 
+/**
+ * Controller responsável por processar requisições de busca de usuário por ID.
+ * Delega a autorização e a busca ao GetUserByIdService.
+ */
 class GetUserByIdController {
+  /**
+   * Processa requisições GET /v1/user/:id.
+   * @param {import('express').Request} req - Objeto de requisição do Express.
+   * @param {import('express').Response} res - Objeto de resposta do Express.
+   * @returns {Promise<void>}
+   */
   async handle(req, res) {
-    try {
-      const targetUserId = req.params.id;
-      const loggedUser = req.user; // payload do token
-      const user = await GetUserByIdService.execute({ targetUserId, loggedUser });
-      return res.status(200).json(GetUserByIdResponseDto.toResponse(user));
-    } catch (error) {
-      return res.status(400).json({ error: error.message });
-    }
+    const targetUserId = req.params.id;
+    const loggedUser = req.user;
+    const user = await GetUserByIdService.execute({ targetUserId, loggedUser });
+    return res.status(200).json(GetUserByIdResponseDto.toResponse(user));
   }
 }
 

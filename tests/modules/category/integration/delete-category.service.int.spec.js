@@ -7,6 +7,8 @@ const categoryRoutes = require("../../../../src/modules/category/routes/category
 const app = express();
 app.use(express.json());
 app.use(categoryRoutes);
+const errorHandler = require("../../../../src/shared/middlewares/error-handler.middleware");
+app.use(errorHandler);
 
 describe("Delete Category - Integration Tests", () => {
   beforeAll(async () => {
@@ -126,7 +128,7 @@ describe("Delete Category - Integration Tests", () => {
     expect(response.body.errors[0].field).toBe("id");
   });
 
-  it("DELETE /v1/category/:id - Deve retornar 400 quando categoria não existe", async () => {
+  it("DELETE /v1/category/:id - Deve retornar 404 quando categoria não existe", async () => {
     const token = generateToken(adminPayload);
     const fakeId = "00000000-0000-0000-0000-000000000000";
 
@@ -134,8 +136,8 @@ describe("Delete Category - Integration Tests", () => {
       .delete(`/v1/category/${fakeId}`)
       .set("Authorization", `Bearer ${token}`);
 
-    expect(response.status).toBe(400);
-    expect(response.body.error).toMatch(/not found/i);
+    expect(response.status).toBe(404);
+    expect(response.body.message).toMatch(/não encontrado/i);
   });
 
   it("DELETE /v1/category/:id - Deve retornar 400 ao tentar deletar mesma categoria 2x (idempotência soft delete)", async () => {
@@ -154,8 +156,8 @@ describe("Delete Category - Integration Tests", () => {
       .delete(`/v1/category/${category.id}`)
       .set("Authorization", `Bearer ${token}`);
 
-    expect(secondResponse.status).toBe(400);
-    expect(secondResponse.body.error).toMatch(/not found/i);
+    expect(secondResponse.status).toBe(404);
+    expect(secondResponse.body.message).toMatch(/não encontrado/i);
   });
 
   it("DELETE /v1/category/:id - Deve ignorar body extra e deletar normalmente", async () => {

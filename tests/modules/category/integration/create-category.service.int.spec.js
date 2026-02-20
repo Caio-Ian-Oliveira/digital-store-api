@@ -9,6 +9,9 @@ const app = express();
 app.use(express.json());
 app.use(categoryRoutes);
 
+const errorHandler = require("../../../../src/shared/middlewares/error-handler.middleware");
+app.use(errorHandler);
+
 describe("Create Category - Integration Tests", () => {
   // Garante que a tabela existe antes dos testes e limpa após cada teste
   beforeAll(async () => {
@@ -113,7 +116,7 @@ describe("Create Category - Integration Tests", () => {
       .send(validCategory);
 
     expect(response.status).toBe(400);
-    expect(response.body.error).toMatch(/já existe/i);
+    expect(response.body.message).toMatch(/já existe/i);
   });
 
   it("POST /v1/category - Deve retornar 400 se o nome ou slug excederem o limite de caracteres", async () => {
@@ -136,6 +139,6 @@ describe("Create Category - Integration Tests", () => {
     
     // Verifica se os erros de validação contêm mensagens sobre o limite
     const errors = response.body.errors;
-    expect(errors.some(e => e.message.includes("50 characters"))).toBe(true);
+    expect(errors.some(e => e.message.includes("50 caracteres"))).toBe(true);
   });
 });

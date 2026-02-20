@@ -8,6 +8,8 @@ const categoryRoutes = require("../../../../src/modules/category/routes/category
 const app = express();
 app.use(express.json());
 app.use(categoryRoutes);
+const errorHandler = require("../../../../src/shared/middlewares/error-handler.middleware");
+app.use(errorHandler);
 
 describe("Get Category By Id - Integration Tests", () => {
   let createdCategory;
@@ -83,7 +85,7 @@ describe("Get Category By Id - Integration Tests", () => {
     const response = await request(app).get(`/v1/category/${nonExistentId}`).set("Authorization", `Bearer ${token}`);
 
     expect(response.status).toBe(404);
-    expect(response.body).toHaveProperty("error", "Category not found");
+    expect(response.body).toHaveProperty("message", "Recurso não encontrado.");
   });
 
   it("GET /v1/category/:id - Deve retornar 400 quando o ID não é um UUID válido", async () => {

@@ -64,7 +64,7 @@ describe("CreateUserService - Integration Tests", () => {
         confirmPassword: "differentPassword",
       };
 
-      await expect(createUserService.execute(invalidData)).rejects.toThrow("Passwords do not match");
+      await expect(createUserService.execute(invalidData)).rejects.toThrow("As senhas não coincidem.");
 
       // Verifica que nenhum usuário foi criado
       const userInDb = await User.findOne({ where: { email: validUserData.email } });

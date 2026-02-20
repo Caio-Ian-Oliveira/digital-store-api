@@ -25,10 +25,10 @@ describe("GetProductByIdService - Unit Tests", () => {
       expect(result).toEqual(mockProduct);
     });
 
-    it("deve lançar erro 'Product not found' quando produto não existir", async () => {
+    it("deve lançar erro 'Recurso não encontrado.' quando produto não existir", async () => {
       productRepository.findById.mockResolvedValue(null);
 
-      await expect(getProductByIdService.execute(999)).rejects.toThrow("Product not found");
+      await expect(getProductByIdService.execute(999)).rejects.toThrow("Recurso não encontrado.");
 
       expect(productRepository.findById).toHaveBeenCalledWith(999);
     });

@@ -16,7 +16,10 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("", userRoutes);
 app.use("", categoryRoutes);
-app.use("", productRoutes)
+app.use("", productRoutes);
+
+const errorHandler = require("./shared/middlewares/error-handler.middleware");
+app.use(errorHandler);
 
 app.get("/", (_req, res) => {
   res.send("Hello World!");

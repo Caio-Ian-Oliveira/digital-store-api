@@ -1,62 +1,47 @@
-const DeleteProductController = require('../../../../src/modules/product/http/controllers/delete-product.controller');
+const express = require('express');
+const request = require('supertest');
 const DeleteProductService = require('../../../../src/modules/product/core/services/delete-product.service');
+const DeleteProductController = require('../../../../src/modules/product/http/controllers/delete-product.controller');
+const asyncHandler = require('../../../../src/shared/middlewares/async-handler.middleware');
+const errorHandler = require('../../../../src/shared/middlewares/error-handler.middleware');
+const AppError = require('../../../../src/shared/errors/AppError');
 
 jest.mock('../../../../src/modules/product/core/services/delete-product.service');
 
-describe('DeleteProductController', () => {
-    let req;
-    let res;
+const app = express();
+app.use(express.json());
+app.delete('/v1/product/:id', asyncHandler(DeleteProductController.handle));
+app.use(errorHandler);
 
+describe('DeleteProductController', () => {
     beforeEach(() => {
-        req = {
-            params: { id: 1 }
-        };
-        res = {
-            status: jest.fn().mockReturnThis(),
-            send: jest.fn(),
-            json: jest.fn()
-        };
         jest.clearAllMocks();
     });
 
     it('should return 204 on successful deletion', async () => {
-        // Arrange
         DeleteProductService.execute.mockResolvedValue(true);
 
-        // Act
-        await DeleteProductController.handle(req, res);
+        const response = await request(app).delete('/v1/product/1');
 
-        // Assert
-        expect(DeleteProductService.execute).toHaveBeenCalledWith(1);
-        expect(res.status).toHaveBeenCalledWith(204);
-        expect(res.send).toHaveBeenCalled();
+        expect(response.status).toBe(204);
+        expect(DeleteProductService.execute).toHaveBeenCalledWith('1');
     });
 
     it('should return 404 when product is not found', async () => {
-        // Arrange
-        const error = new Error('Product not found');
-        DeleteProductService.execute.mockRejectedValue(error);
+        DeleteProductService.execute.mockRejectedValue(new AppError('Recurso não encontrado.', 404));
 
-        // Act
-        await DeleteProductController.handle(req, res);
+        const response = await request(app).delete('/v1/product/1');
 
-        // Assert
-        expect(DeleteProductService.execute).toHaveBeenCalledWith(1);
-        expect(res.status).toHaveBeenCalledWith(404);
-        expect(res.json).toHaveBeenCalledWith({ error: 'Product not found' });
+        expect(response.status).toBe(404);
+        expect(response.body.message).toBe('Recurso não encontrado.');
     });
 
-    it('should return 400 on generic error', async () => {
-        // Arrange
-        const error = new Error('Unexpected error');
-        DeleteProductService.execute.mockRejectedValue(error);
+    it('should return 500 on generic error', async () => {
+        DeleteProductService.execute.mockRejectedValue(new Error('Unexpected error'));
 
-        // Act
-        await DeleteProductController.handle(req, res);
+        const response = await request(app).delete('/v1/product/1');
 
-        // Assert
-        expect(DeleteProductService.execute).toHaveBeenCalledWith(1);
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: 'Unexpected error' });
+        expect(response.status).toBe(500);
+        expect(response.body.message).toBe('Unexpected error');
     });
 });

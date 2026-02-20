@@ -78,20 +78,20 @@
 const SearchCategoryService = require("../../core/services/search-category.service");
 const SearchCategoryResponseDto = require("../dto/response/search-category.response.dto");
 
+/**
+ * Controller responsável pela busca paginada de categorias.
+ * Recebe a requisição HTTP e delega ao serviço de busca.
+ */
 class SearchCategoryController {
+  /**
+   * Processa a requisição de busca de categorias com filtros e paginação.
+   * @param {import('express').Request} req - Objeto de requisição Express (query validada).
+   * @param {import('express').Response} res - Objeto de resposta Express.
+   * @returns {Promise<void>} Resposta JSON com lista paginada de categorias (200).
+   */
   async handle(req, res) {
-    try {
-      // Executa o serviço usando o req.query já validado
-      const result = await SearchCategoryService.execute(req.query);
-
-      // Formata e envia
-      return res.status(200).json(SearchCategoryResponseDto.toResponse(result));
-    } catch (error) {
-      return res.status(500).json({
-        error: "Internal Server Error",
-        message: error.message,
-      });
-    }
+    const result = await SearchCategoryService.execute(req.query);
+    return res.status(200).json(SearchCategoryResponseDto.toResponse(result));
   }
 }
 

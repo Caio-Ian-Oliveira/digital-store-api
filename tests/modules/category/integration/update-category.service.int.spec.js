@@ -7,6 +7,8 @@ const categoryRoutes = require("../../../../src/modules/category/routes/category
 const app = express();
 app.use(express.json());
 app.use(categoryRoutes);
+const errorHandler = require("../../../../src/shared/middlewares/error-handler.middleware");
+app.use(errorHandler);
 
 describe("Update Category - Integration Tests", () => {
   beforeAll(async () => {
@@ -141,7 +143,7 @@ describe("Update Category - Integration Tests", () => {
     expect(response.body).toHaveProperty("errors");
   });
 
-  it("PATCH /v1/category/:id - Deve retornar 400 quando categoria não existe", async () => {
+  it("PATCH /v1/category/:id - Deve retornar 404 quando categoria não existe", async () => {
     const token = generateToken(adminPayload);
     const fakeId = "00000000-0000-0000-0000-000000000000";
 
@@ -150,7 +152,8 @@ describe("Update Category - Integration Tests", () => {
       .set("Authorization", `Bearer ${token}`)
       .send(validUpdateData);
 
-    expect(response.body.error).toMatch(/not found/i);
+    expect(response.status).toBe(404);
+    expect(response.body.message).toMatch(/não encontrado/i);
   });
 
   it("PATCH /v1/category/:id - Deve retornar 400 se o nome ou slug excederem o limite de caracteres", async () => {
@@ -167,6 +170,6 @@ describe("Update Category - Integration Tests", () => {
     expect(response.body).toHaveProperty("errors");
     
     const errors = response.body.errors;
-    expect(errors.some(e => e.message.includes("50 characters"))).toBe(true);
+    expect(errors.some(e => e.message.includes("50 caracteres"))).toBe(true);
   });
 });

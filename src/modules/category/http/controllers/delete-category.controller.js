@@ -44,20 +44,26 @@
  *       403:
  *         description: Acesso negado (usuário não é ADMIN)
  */
-const DeleteCategoryService = require("../../core/services/delete-category.service")
-const DeleteCategoryResponseDto = require("../dto/response/delete-category.response.dto")
+const DeleteCategoryService = require("../../core/services/delete-category.service");
+const DeleteCategoryResponseDto = require("../dto/response/delete-category.response.dto");
 
+/**
+ * Controller responsável pela exclusão lógica de categorias.
+ * Recebe a requisição HTTP e delega ao serviço de deleção.
+ */
 class DeleteCategoryController {
-    async handle(req, res) {
-        try {
-            const targetCategoryId = req.params.id;
-            const deletedCategory = await DeleteCategoryService.execute(targetCategoryId);
+  /**
+   * Processa a requisição de exclusão de categoria.
+   * @param {import('express').Request} req - Objeto de requisição Express (params.id).
+   * @param {import('express').Response} res - Objeto de resposta Express.
+   * @returns {Promise<void>} Resposta JSON com a categoria deletada (200).
+   */
+  async handle(req, res) {
+    const targetCategoryId = req.params.id;
+    const deletedCategory = await DeleteCategoryService.execute(targetCategoryId);
 
-            return res.status(200).json(DeleteCategoryResponseDto.toResponse(deletedCategory));
-        } catch (error) {
-            return res.status(400).json({ error: error.message });
-        }
-    }
+    return res.status(200).json(DeleteCategoryResponseDto.toResponse(deletedCategory));
+  }
 }
 
 module.exports = new DeleteCategoryController();

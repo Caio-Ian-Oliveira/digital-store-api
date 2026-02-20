@@ -1,17 +1,9 @@
 const createProductService = require("../../../../src/modules/product/core/services/create-product.service");
 const productRepository = require("../../../../src/modules/product/persistence/product.repository");
-const { Product, Category } = require("../../../../src/models");
+const categoryRepository = require("../../../../src/modules/category/persistence/category.repository");
 
-// Mock do repository e models
 jest.mock("../../../../src/modules/product/persistence/product.repository");
-jest.mock("../../../../src/models", () => ({
-  Product: {
-    findOne: jest.fn(),
-  },
-  Category: {
-    findAll: jest.fn(),
-  },
-}));
+jest.mock("../../../../src/modules/category/persistence/category.repository");
 
 describe("CreateProductService - Unit Tests", () => {
   beforeEach(() => {
@@ -40,25 +32,17 @@ describe("CreateProductService - Unit Tests", () => {
         toJSON: () => mockCreatedProduct,
       };
 
-      // Mock: Não existe produto com mesmo nome/slug
-      Product.findOne.mockResolvedValue(null);
-
-      // Mock: Categorias existem
-      Category.findAll.mockResolvedValue([{ id: "uuid-categoria-1" }]);
-
-      // Mock: Criação do produto
+      productRepository.findByNameOrSlug.mockResolvedValue(null);
+      categoryRepository.findByIds.mockResolvedValue([{ id: "uuid-categoria-1" }]);
       productRepository.createProduct.mockResolvedValue(mockCreatedProduct);
 
       const result = await createProductService.execute(validProductData);
 
-      expect(Product.findOne).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.any(Object),
-        })
+      expect(productRepository.findByNameOrSlug).toHaveBeenCalledWith(
+        validProductData.name,
+        validProductData.slug
       );
-      expect(Category.findAll).toHaveBeenCalledWith({
-        where: { id: validProductData.category_ids },
-      });
+      expect(categoryRepository.findByIds).toHaveBeenCalledWith(validProductData.category_ids);
       expect(productRepository.createProduct).toHaveBeenCalledWith({
         productData: expect.objectContaining({
           name: validProductData.name,
@@ -79,14 +63,14 @@ describe("CreateProductService - Unit Tests", () => {
         slug: "produto-teste",
       };
 
-      Product.findOne.mockResolvedValue(existingProduct);
+      productRepository.findByNameOrSlug.mockResolvedValue(existingProduct);
 
       await expect(createProductService.execute(validProductData)).rejects.toThrow(
         "Produto já existe (nome ou slug duplicado)",
       );
 
-      expect(Product.findOne).toHaveBeenCalled();
-      expect(Category.findAll).not.toHaveBeenCalled();
+      expect(productRepository.findByNameOrSlug).toHaveBeenCalled();
+      expect(categoryRepository.findByIds).not.toHaveBeenCalled();
       expect(productRepository.createProduct).not.toHaveBeenCalled();
     });
 
@@ -97,7 +81,7 @@ describe("CreateProductService - Unit Tests", () => {
         slug: "outro-slug",
       };
 
-      Product.findOne.mockResolvedValue(existingProduct);
+      productRepository.findByNameOrSlug.mockResolvedValue(existingProduct);
 
       await expect(createProductService.execute(validProductData)).rejects.toThrow(
         "Produto já existe (nome ou slug duplicado)",
@@ -107,12 +91,12 @@ describe("CreateProductService - Unit Tests", () => {
     });
 
     it("deve lançar erro quando categoria não é encontrada", async () => {
-      Product.findOne.mockResolvedValue(null);
-      Category.findAll.mockResolvedValue([]);
+      productRepository.findByNameOrSlug.mockResolvedValue(null);
+      categoryRepository.findByIds.mockResolvedValue([]);
 
       await expect(createProductService.execute(validProductData)).rejects.toThrow("Categorias não encontradas");
 
-      expect(Category.findAll).toHaveBeenCalled();
+      expect(categoryRepository.findByIds).toHaveBeenCalled();
       expect(productRepository.createProduct).not.toHaveBeenCalled();
     });
 
@@ -120,12 +104,12 @@ describe("CreateProductService - Unit Tests", () => {
       const dataWithoutCategories = { ...validProductData, category_ids: undefined };
       const mockCreatedProduct = { id: 4, ...dataWithoutCategories };
 
-      Product.findOne.mockResolvedValue(null);
+      productRepository.findByNameOrSlug.mockResolvedValue(null);
       productRepository.createProduct.mockResolvedValue(mockCreatedProduct);
 
       const result = await createProductService.execute(dataWithoutCategories);
 
-      expect(Category.findAll).not.toHaveBeenCalled();
+      expect(categoryRepository.findByIds).not.toHaveBeenCalled();
       expect(productRepository.createProduct).toHaveBeenCalledWith({
         productData: expect.anything(),
         images: [],

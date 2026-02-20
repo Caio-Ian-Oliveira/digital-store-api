@@ -1,35 +1,43 @@
 const { z } = require("zod");
 
-// Definição do Schema
+/**
+ * Schema Zod de validação para cadastro de usuário.
+ * Valida campos obrigatórios, aplica confirmação de senha
+ * e utiliza modo strict para rejeitar propriedades inesperadas.
+ * O campo 'role' é intencionalmente excluído para prevenir escalação de privilégios.
+ */
 const createUserSchema = z
   .object({
-    firstname: z.string({ required_error: "Firstname is required" }).min(1, "Firstname is required").max(50, "Firstname must be at most 50 characters"),
+    firstname: z.string({ required_error: "Nome é obrigatório" }).min(1, "Nome é obrigatório").max(50, "Nome deve ter no máximo 50 caracteres"),
 
-    surname: z.string({ required_error: "Surname is required" }).min(1, "Surname is required").max(50, "Surname must be at most 50 characters"),
+    surname: z.string({ required_error: "Sobrenome é obrigatório" }).min(1, "Sobrenome é obrigatório").max(50, "Sobrenome deve ter no máximo 50 caracteres"),
 
-    email: z.string({ required_error: "Email is required" }).email("Invalid email"),
+    email: z.string({ required_error: "Email é obrigatório" }).email("Email inválido"),
 
-    password: z.string({ required_error: "Password is required" }).min(6, "Password must be at least 6 characters").max(100, "Password must be at most 100 characters"),
+    password: z.string({ required_error: "Senha é obrigatória" }).min(6, "Senha deve ter no mínimo 6 caracteres").max(100, "Senha deve ter no máximo 100 caracteres"),
 
     confirmPassword: z
-      .string({ required_error: "Confirm password is required" })
-      .min(6, "Confirm password is required")
-      .max(100, "Confirm password must be at most 100 characters"),
-
-    // Não incluir 'role' no schema para impedir que o cliente envie esse campo
+      .string({ required_error: "Confirmação de senha é obrigatória" })
+      .min(6, "Confirmação de senha é obrigatória")
+      .max(100, "Confirmação de senha deve ter no máximo 100 caracteres"),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"], // Aponta o erro especificamente para este campo
+    message: "As senhas não coincidem",
+    path: ["confirmPassword"],
   })
   .strict();
 
-// Middleware para usar na rota
+/**
+ * Middleware Express que valida o body da requisição contra o createUserSchema.
+ * Retorna 400 com erros por campo se a validação falhar, caso contrário segue para o próximo handler.
+ * @param {import('express').Request} req - Objeto de requisição do Express.
+ * @param {import('express').Response} res - Objeto de resposta do Express.
+ * @param {import('express').NextFunction} next - Função next do Express.
+ */
 const createUserValidator = (req, res, next) => {
   const result = createUserSchema.safeParse(req.body);
 
   if (!result.success) {
-    // Formata os erros para um array simples de objetos
     const errors = result.error.issues.map((err) => ({
       field: err.path.join("."),
       message: err.message,
@@ -38,7 +46,6 @@ const createUserValidator = (req, res, next) => {
     return res.status(400).json({ errors });
   }
 
-  // Se passou na validação, segue o fluxo
   next();
 };
 

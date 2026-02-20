@@ -8,6 +8,8 @@ const productRoutes = require("../../../../src/modules/product/routes/product.ro
 const app = express();
 app.use(express.json());
 app.use(productRoutes);
+const errorHandler = require("../../../../src/shared/middlewares/error-handler.middleware");
+app.use(errorHandler);
 
 describe("Create Product - Integration Tests", () => {
   let testCategory;
@@ -192,7 +194,7 @@ describe("Create Product - Integration Tests", () => {
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty("errors");
     expect(response.body.errors).toEqual(
-      expect.arrayContaining([expect.objectContaining({ field: "stock", message: expect.stringContaining("negative") })]),
+      expect.arrayContaining([expect.objectContaining({ field: "stock", message: expect.stringContaining("negativo") })]),
     );
   });
 
@@ -220,7 +222,7 @@ describe("Create Product - Integration Tests", () => {
     const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(payload);
 
     expect(response.status).toBe(400);
-    expect(response.body.error).toMatch(/já existe/i);
+    expect(response.body.message).toMatch(/já existe/i);
   });
 
   it("POST /v1/product - Deve retornar 400 se name já existir (duplicado)", async () => {
@@ -235,7 +237,7 @@ describe("Create Product - Integration Tests", () => {
     const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(duplicateNameData);
 
     expect(response.status).toBe(400);
-    expect(response.body.error).toMatch(/já existe/i);
+    expect(response.body.message).toMatch(/já existe/i);
   });
 
   it("POST /v1/product - Deve retornar 400 se category_ids contiver UUID inválido (não existe)", async () => {
@@ -245,7 +247,7 @@ describe("Create Product - Integration Tests", () => {
     const response = await request(app).post("/v1/product").set("Authorization", `Bearer ${token}`).send(invalidData);
 
     expect(response.status).toBe(400);
-    expect(response.body.error).toMatch(/não encontradas/i);
+    expect(response.body.message).toMatch(/não encontradas/i);
   });
 
   it("POST /v1/product - Deve retornar 400 se category_ids contiver UUID malformado", async () => {
@@ -342,12 +344,12 @@ describe("Create Product - Integration Tests", () => {
     // Verificando se todos os campos inválidos foram capturados
     const errors = response.body.errors;
     // Name e Slug tem limite de 100
-    expect(errors.some(e => e.message.includes("100 characters"))).toBe(true); 
+    expect(errors.some(e => e.message.includes("100 caracteres"))).toBe(true); 
     // Description tem limite de 1000
-    expect(errors.some(e => e.message.includes("1000 characters"))).toBe(true); 
+    expect(errors.some(e => e.message.includes("1000 caracteres"))).toBe(true); 
     // Option Title tem limite de 30
-    expect(errors.some(e => e.message.includes("30 characters"))).toBe(true); 
+    expect(errors.some(e => e.message.includes("30 caracteres"))).toBe(true); 
     // Option Value tem limite de 255
-    expect(errors.some(e => e.message.includes("255 characters"))).toBe(true); 
+    expect(errors.some(e => e.message.includes("255 caracteres"))).toBe(true); 
   });
 });

@@ -7,6 +7,8 @@ const productRoutes = require("../../../../src/modules/product/routes/product.ro
 const app = express();
 app.use(express.json());
 app.use(productRoutes);
+const errorHandler = require("../../../../src/shared/middlewares/error-handler.middleware");
+app.use(errorHandler);
 
 describe("List Products - Integration Tests", () => {
   beforeAll(async () => {
@@ -209,14 +211,14 @@ describe("List Products - Integration Tests", () => {
     const response = await request(app).get("/v1/product/search?limit=-5");
 
     expect(response.status).toBe(400);
-    expect(response.body.errors[0].message).toMatch(/limit must be positive/i);
+    expect(response.body.errors[0].message).toMatch(/Limite deve ser positivo/i);
   });
 
   it("GET /v1/product/search - Deve retornar 400 para price-range inválido", async () => {
       const response = await request(app).get("/v1/product/search?price-range=abc");
 
       expect(response.status).toBe(400);
-      expect(response.body.errors[0].message).toMatch(/price range must be in format/i);
+      expect(response.body.errors[0].message).toMatch(/Faixa de preço deve estar no formato/i);
   });
 
   it("GET /v1/product/search - Deve sanitizar input evitando SQL Injection (básico)", async () => {
