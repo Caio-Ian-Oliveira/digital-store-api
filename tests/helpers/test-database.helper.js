@@ -50,7 +50,7 @@ async function closeTestDatabase() {
 async function createTestUser(userData = {}) {
   const defaultData = {
     firstname: "Test",
-    surname: "User",
+    surname: "user",
     email: `test-${Date.now()}-${Math.random().toString(36).slice(2)}@example.com`,
     password: "password123",
     role: "USER",
@@ -65,7 +65,7 @@ async function createTestUser(userData = {}) {
 async function createTestAdmin(userData = {}) {
   const defaultData = {
     firstname: "Admin",
-    surname: "User",
+    surname: "user",
     email: `admin-${Date.now()}-${Math.random().toString(36).slice(2)}@example.com`,
     password: "admin123",
     role: "ADMIN",

@@ -20,9 +20,11 @@ const UploadImageResponseDto = require("../dto/response/upload-image.response.dt
  *           schema:
  *             type: object
  *             properties:
- *               image:
- *                 type: string
- *                 format: binary
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
  *         application/json:
  *           schema:
  *             type: object
@@ -59,18 +61,24 @@ class UploadImageController {
     let type, content;
 
     // Detecta se é upload de arquivo (multipart/form-data) ou JSON
-    if (req.file) {
-      type = req.file.mimetype;
-      content = req.file.buffer.toString("base64");
+    if (req.files && req.files.length > 0) {
+      const results = [];
+      for (const file of req.files) {
+        const type = file.mimetype;
+        const content = file.buffer.toString("base64");
+        const uploadResult = await UploadImageService.execute({ type, content });
+        results.push(UploadImageResponseDto.toResponse(uploadResult));
+      }
+      return res.status(200).json(results);
     } else if (req.body && req.body.type && req.body.content) {
-      type = req.body.type;
-      content = req.body.content;
+      const type = req.body.type;
+      const content = req.body.content;
+      const result = await UploadImageService.execute({ type, content });
+      return res.status(200).json([UploadImageResponseDto.toResponse(result)]);
     } else {
-      return res.status(400).json({ error: "Envie um arquivo ou JSON com type e content" });
+      return res.status(400).json({ error: "Envie arquivos no form-data (campo 'images') ou JSON com type e content" });
     }
 
-    const result = await UploadImageService.execute({ type, content });
-    return res.status(200).json(UploadImageResponseDto.toResponse(result));
   }
 }
 

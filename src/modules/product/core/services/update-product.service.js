@@ -1,6 +1,5 @@
-const AppError = require("../../../../shared/errors/AppError");
+const AppError = require("../../../../shared/errors/app-error");
 const ProductRepository = require("../../persistence/product.repository");
-const { processImage } = require("../../../../shared/utils/image.utils");
 
 /**
  * Serviço responsável pela atualização de produtos.

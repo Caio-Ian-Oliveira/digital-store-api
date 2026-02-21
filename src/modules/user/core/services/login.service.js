@@ -1,4 +1,4 @@
-const AppError = require("../../../../shared/errors/AppError");
+const AppError = require("../../../../shared/errors/app-error");
 const bcrypt = require("bcrypt");
 const userRepository = require("../../persistence/user.repository");
 const { generateToken } = require("../../../../shared/auth/jwt");

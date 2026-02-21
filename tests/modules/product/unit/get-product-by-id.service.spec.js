@@ -13,7 +13,7 @@ describe("GetProductByIdService - Unit Tests", () => {
     it("deve retornar o produto quando encontrado pelo ID", async () => {
       const mockProduct = {
         id: 1,
-        name: "Test Product",
+        name: "Test product",
         slug: "test-product",
       };
 

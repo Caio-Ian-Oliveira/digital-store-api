@@ -25,7 +25,7 @@ services:
       MYSQL_USER: usuario_app
       MYSQL_PASSWORD: senha_app
     ports:
-      - "3307:3307"
+      - "3307:3306"
     volumes:
       - mysql_data_test:/var/lib/mysql
 

@@ -41,7 +41,7 @@ router.post(
   "/v1/product/upload-image",
   authVerificationMiddleware,
   roleGuardMiddleware.handle(["ADMIN"]),
-  upload.single("image"),
+  upload.array("images", 10),
   uploadImageValidator,
   asyncHandler(UploadImageController.handle),
 );

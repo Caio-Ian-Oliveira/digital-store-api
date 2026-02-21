@@ -21,7 +21,7 @@ const uploadImageSchema = z.object({
  * @param {import('express').NextFunction} next - Função next do Express.
  */
 const uploadImageValidator = (req, res, next) => {
-  if (req.file) {
+  if (req.files && req.files.length > 0) {
     return next();
   }
 

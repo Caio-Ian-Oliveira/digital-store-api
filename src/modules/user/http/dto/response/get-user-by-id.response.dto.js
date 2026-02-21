@@ -2,10 +2,10 @@ const { z } = require("zod");
 
 /** Schema Zod que define o formato da resposta de busca de usuário por ID. */
 const getUserByIdResponseSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   firstname: z.string(),
   surname: z.string(),
-  email: z.string().email(),
+  email: z.email(),
 });
 
 /**

@@ -29,13 +29,13 @@ describe("Update Product - Integration Tests", () => {
   beforeEach(async () => {
     // Create necessary data
     testCategory = await Category.create({
-      name: "Test Category",
+      name: "Test category",
       slug: "test-category",
       use_in_menu: true,
     });
 
     testProduct = await Product.create({
-      name: "Original Product",
+      name: "Original product",
       slug: "original-product",
       price: 100.0,
       price_with_discount: 90.0,

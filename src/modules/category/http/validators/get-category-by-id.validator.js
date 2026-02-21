@@ -6,7 +6,7 @@ const { z } = require("zod");
  * @type {import('zod').ZodObject}
  */
 const getCategoryByIdSchema = z.object({
-  id: z.string().uuid({ message: "ID deve ser um UUID válido" }),
+  id: z.uuid({ message: "ID deve ser um UUID válido" }),
 });
 
 /**

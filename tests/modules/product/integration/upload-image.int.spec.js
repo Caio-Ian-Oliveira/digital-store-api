@@ -1,7 +1,7 @@
-// Mock do Multer (DEVE VIR ANTES DE TODAS AS IMPORTAÇÕES)
 jest.mock("multer", () => {
   const multer = () => ({
     single: () => (req, res, next) => next(),
+    array: () => (req, res, next) => next(),
   });
   multer.memoryStorage = () => ({});
   return multer;
@@ -54,10 +54,11 @@ describe("Upload Image - Integration Tests", () => {
       .send(payload);
 
     expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("url");
-    expect(response.body).toHaveProperty("public_id");
-    expect(response.body.url).toContain("cloudinary.com");
-    expect(response.body.public_id).toBe("products/test-image");
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body[0]).toHaveProperty("url");
+    expect(response.body[0]).toHaveProperty("public_id");
+    expect(response.body[0].url).toContain("cloudinary.com");
+    expect(response.body[0].public_id).toBe("products/test-image");
   });
 
   // ============ AUTENTICAÇÃO / AUTORIZAÇÃO ============

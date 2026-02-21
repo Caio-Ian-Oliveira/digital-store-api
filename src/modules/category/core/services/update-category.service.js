@@ -1,4 +1,4 @@
-const AppError = require("../../../../shared/errors/AppError");
+const AppError = require("../../../../shared/errors/app-error");
 const CategoryRepository = require("../../persistence/category.repository");
 
 /**

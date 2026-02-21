@@ -28,7 +28,7 @@ describe("Create Product - Integration Tests", () => {
   beforeEach(async () => {
     // Cria uma categoria para usar nos testes
     testCategory = await Category.create({
-      name: "Test Category",
+      name: "Test category",
       slug: "test-category",
       use_in_menu: true,
     });

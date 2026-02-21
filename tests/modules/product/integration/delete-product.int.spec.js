@@ -24,7 +24,7 @@ describe("Delete Product Integration Test", () => {
     // Create users in DB with correct fields (firstname, surname)
     adminUser = await User.create({
       firstname: "Admin",
-      surname: "User",
+      surname: "user",
       email: "admin@example.com",
       password: "password123",
       role: "ADMIN",
@@ -32,7 +32,7 @@ describe("Delete Product Integration Test", () => {
 
     normalUser = await User.create({
       firstname: "Normal",
-      surname: "User",
+      surname: "user",
       email: "user@example.com",
       password: "password123",
       role: "USER",

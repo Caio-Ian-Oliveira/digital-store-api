@@ -14,6 +14,13 @@ if (config.use_env_variable) {
   sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
 
+// Helper to convert kebab-case to PascalCase
+const toPascalCase = (str) =>
+  str
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join("");
+
 // Lê todos os arquivos da pasta atual
 fs.readdirSync(__dirname)
   .filter((file) => {
@@ -21,9 +28,9 @@ fs.readdirSync(__dirname)
   })
   .forEach((file) => {
     const model = require(path.join(__dirname, file));
-    // Se for função (padrão recomendado), inicializa e adiciona pelo nome do model
     const modelInstance = model(sequelize, Sequelize.DataTypes);
-    db[modelInstance.name] = modelInstance;
+    const mName = toPascalCase(file.replace(".js", ""));
+    db[mName] = modelInstance;
   });
 
 // Executa as associações (relacionamentos) se houver

@@ -2,10 +2,10 @@ const { z } = require("zod");
 
 /** Schema Zod que define o formato da resposta de atualização de usuário. */
 const updateUserResponseSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   firstname: z.string(),
   surname: z.string(),
-  email: z.string().email(),
+  email: z.email(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

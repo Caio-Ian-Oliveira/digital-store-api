@@ -41,7 +41,7 @@ const updateProductSchema = z
     description: z.string().max(1000, "Descrição deve ter no máximo 1000 caracteres").optional(),
     price: z.number().positive("Preço deve ser positivo").optional(),
     price_with_discount: z.number().positive("Preço com desconto deve ser positivo").optional(),
-    category_ids: z.array(z.string().uuid("Cada category_id deve ser um UUID válido")).optional(),
+    category_ids: z.array(z.uuid("Cada category_id deve ser um UUID válido")).optional(),
     images: z.array(imageSchema).optional(),
     options: z.array(optionSchema).optional(),
   })
