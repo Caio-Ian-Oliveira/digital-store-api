@@ -46,7 +46,7 @@ const createProductSchema = z
     description: z.string().max(1000, "Descrição deve ter no máximo 1000 caracteres").optional(),
     price: z.number({ required_error: "Preço é obrigatório" }).positive("Preço deve ser positivo"),
     price_with_discount: z.number().positive("Preço com desconto deve ser positivo").optional(),
-    category_ids: z.array(z.string().uuid("Cada category_id deve ser um UUID válido")).default([]),
+    category_ids: z.array(z.uuid("Cada category_id deve ser um UUID válido")).default([]),
     images: z.array(imageSchema).default([]),
     options: z.array(optionSchema).default([]),
   })

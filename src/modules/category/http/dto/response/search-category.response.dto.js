@@ -7,7 +7,7 @@ const { z } = require("zod");
  */
 const categoryItemSchema = z
   .object({
-    id: z.string().uuid().optional(),
+    id: z.uuid().optional(),
     name: z.string().optional(),
     slug: z.string().optional(),
     use_in_menu: z.coerce.boolean().optional(),

@@ -6,7 +6,7 @@ const { z } = require("zod");
  * @type {import('zod').ZodObject}
  */
 const updateCategoryResponseSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   name: z.string(),
   slug: z.string(),
   use_in_menu: z.coerce.boolean(),

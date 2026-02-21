@@ -30,7 +30,7 @@ module.exports = (sequelize) => {
     },
     {
       sequelize,
-      modelName: "ProductCategory",
+      modelName: "Productcategory",
       tableName: "product_categories",
       timestamps: false,
     },

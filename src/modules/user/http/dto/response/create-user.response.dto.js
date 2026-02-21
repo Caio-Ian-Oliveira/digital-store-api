@@ -2,10 +2,10 @@ const { z } = require("zod");
 
 /** Schema Zod que define o formato da resposta de criação de usuário. */
 const createUserResponseSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   firstname: z.string(),
   surname: z.string(),
-  email: z.string().email(),
+  email: z.email(),
 });
 
 /**

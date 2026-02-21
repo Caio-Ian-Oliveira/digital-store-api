@@ -4,7 +4,7 @@ const DeleteProductService = require("../../../../src/modules/product/core/servi
 const DeleteProductController = require("../../../../src/modules/product/http/controllers/delete-product.controller");
 const asyncHandler = require("../../../../src/shared/middlewares/async-handler.middleware");
 const errorHandler = require("../../../../src/shared/middlewares/error-handler.middleware");
-const AppError = require("../../../../src/shared/errors/AppError");
+const AppError = require("../../../../src/shared/errors/app-error");
 
 jest.mock("../../../../src/modules/product/core/services/delete-product.service");
 

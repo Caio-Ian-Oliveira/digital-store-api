@@ -4,10 +4,10 @@ const { z } = require("zod");
 const loginResponseSchema = z.object({
   token: z.string(),
   user: z.object({
-    id: z.string().uuid(),
+    id: z.uuid(),
     firstname: z.string(),
     surname: z.string(),
-    email: z.string().email(),
+    email: z.email(),
   }),
 });
 

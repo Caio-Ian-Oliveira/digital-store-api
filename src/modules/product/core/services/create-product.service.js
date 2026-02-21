@@ -1,7 +1,6 @@
-const AppError = require("../../../../shared/errors/AppError");
+const AppError = require("../../../../shared/errors/app-error");
 const ProductRepository = require("../../persistence/product.repository");
 const CategoryRepository = require("../../../category/persistence/category.repository");
-const { processImage } = require("../../../../shared/utils/image.utils");
 
 /**
  * Serviço responsável pela criação de produtos.
@@ -68,8 +67,7 @@ class CreateProductService {
     // Processa imagens (resolve URLs) antes de passar ao repository
     const processedImageUrls = [];
     for (const image of images) {
-      const url = await processImage(image.content, image.type);
-      processedImageUrls.push(url);
+      processedImageUrls.push(image.content);
     }
 
     const product = await ProductRepository.createProduct({

@@ -47,7 +47,7 @@ const productResponseSchema = z
     categories: z
       .array(
         z.object({
-          id: z.string().uuid(),
+          id: z.uuid(),
           name: z.string(),
           slug: z.string(),
         }),

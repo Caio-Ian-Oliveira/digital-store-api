@@ -1,5 +1,5 @@
 const { ZodError } = require("zod");
-const AppError = require("../errors/AppError");
+const AppError = require("../errors/app-error");
 
 const errorHandler = (err, req, res, next) => {
   let error = err;
