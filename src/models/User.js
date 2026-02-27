@@ -9,6 +9,11 @@ module.exports = (sequelize, DataTypes) => {
         as: "addresses",
         onDelete: "CASCADE",
       });
+      User.hasOne(models.Cart, {
+        foreignKey: "user_id",
+        as: "cart",
+        onDelete: "CASCADE",
+      });
     }
   }
 

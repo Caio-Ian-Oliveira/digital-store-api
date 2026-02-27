@@ -19,6 +19,11 @@ module.exports = (sequelize) => {
         otherKey: "category_id",
         as: "categories",
       });
+      Product.hasMany(models.CartItem, {
+        foreignKey: "product_id",
+        as: "cartItems",
+        onDelete: "CASCADE",
+      });
     }
   }
 

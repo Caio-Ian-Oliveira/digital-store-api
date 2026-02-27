@@ -17,6 +17,7 @@ app.use(cors(corsOptions));
 const userRoutes = require("./modules/user/routes/user.routes");
 const categoryRoutes = require("./modules/category/routes/category.routes");
 const productRoutes = require("./modules/product/routes/product.routes");
+const cartRoutes = require("./modules/cart/routes/cart.routes");
 
 app.use(express.json());
 app.use(cookieParser());// Limite de Taxa Global
@@ -28,6 +29,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(userRoutes);
 app.use(categoryRoutes);
 app.use(productRoutes);
+app.use(cartRoutes);
 
 const errorHandler = require("./shared/middlewares/error-handler.middleware");
 app.use(errorHandler);

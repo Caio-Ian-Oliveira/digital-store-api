@@ -1,15 +1,17 @@
 // Helper para testes de integração - Configuração do banco de testes
-const { sequelize, User, UserAddress } = require("../../src/models");
+const { sequelize, User, UserAddress, Cart, CartItem } = require("../../src/models");
 
 /**
  * Inicializa o banco de testes antes de executar os testes
- * Sincroniza os modelos User e UserAddress para os testes do módulo user
+ * Sincroniza os modelos User, UserAddress, Cart e CartItem para os testes
  */
 async function setupTestDatabase() {
   try {
     await sequelize.authenticate();
     // Desabilita FK checks para permitir drop/recreate das tabelas com dependências
     await sequelize.query("SET FOREIGN_KEY_CHECKS = 0", { raw: true });
+    await CartItem.sync({ force: true });
+    await Cart.sync({ force: true });
     await UserAddress.sync({ force: true });
     await User.sync({ force: true });
     await sequelize.query("SET FOREIGN_KEY_CHECKS = 1", { raw: true });
@@ -26,6 +28,8 @@ async function clearTestDatabase() {
   try {
     // Desabilita FK checks para limpar dados mesmo com foreign keys
     await sequelize.query("SET FOREIGN_KEY_CHECKS = 0", { raw: true });
+    await CartItem.destroy({ where: {}, truncate: true, force: true });
+    await Cart.destroy({ where: {}, truncate: true, force: true });
     await UserAddress.destroy({ where: {}, truncate: true, force: true });
     await User.destroy({ where: {}, truncate: true, force: true });
     await sequelize.query("SET FOREIGN_KEY_CHECKS = 1", { raw: true });
@@ -93,5 +97,6 @@ module.exports = {
   sequelize,
   User,
   UserAddress,
+  Cart,
+  CartItem,
 };
-
