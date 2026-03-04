@@ -3,13 +3,9 @@ const { verifyToken } = require("./jwt");
 function authVerificationMiddleware(req, res, next) {
   let token = null;
 
-  // 1. Tentar obter do cookie (HTTP-only)
+  // Obter token exclusivamente do cookie HTTP-Only (seguro contra XSS)
   if (req.cookies && req.cookies.access_token) {
     token = req.cookies.access_token;
-  } 
-  // 2. Falback para o Authorization Header
-  else if (req.headers["authorization"] && req.headers["authorization"].startsWith("Bearer ")) {
-    token = req.headers["authorization"].split(" ")[1];
   }
 
   if (!token) {

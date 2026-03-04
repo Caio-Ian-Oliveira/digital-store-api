@@ -118,6 +118,24 @@ class OrderRepository {
   }
 
   /**
+   * Retorna todos os pedidos de um usuário, ordenados do mais recente para o mais antigo.
+   * @param {string} userId - ID do usuário.
+   * @returns {Promise<Array>} Lista de pedidos com seus itens.
+   */
+  async findAllByUser(userId) {
+    return await Order.findAll({
+      where: { user_id: userId },
+      include: [
+        {
+          model: OrderItem,
+          as: "items",
+        },
+      ],
+      order: [["created_at", "DESC"]],
+    });
+  }
+
+  /**
    * Retorna os detalhes de um pedido.
    * @param {string} orderId - ID ou UUID do pedido.
    * @param {string} userId - ID do dono verificador daquele pedido (Segurança)

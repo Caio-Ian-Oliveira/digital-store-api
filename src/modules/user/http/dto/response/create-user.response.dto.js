@@ -6,6 +6,7 @@ const addressResponseSchema = z.object({
   endereco: z.string(),
   bairro: z.string(),
   cidade: z.string(),
+  estado: z.string().nullable(),
   cep: z.string(),
   complemento: z.string().nullable(),
 });
