@@ -126,7 +126,7 @@ class OrderRepository {
    * @returns {Promise<{data: Array, total: number, limit: number, page: number}>} Lista de pedidos e totais.
    */
   async findAllByUser(userId, { limit, page } = {}) {
-    // 1. Paginação
+    // 1. Paginação Segura: Garantindo valores padrões caso o Frontend não envie
     const safeLimit = parseInt(limit, 10) || 10;
     const safePage = parseInt(page, 10) || 1;
     
@@ -142,6 +142,8 @@ class OrderRepository {
       distinct: true,
     };
     
+    // 2. Aplicar offset baseado na página solicitada
+    // Se limit for -1, ignora a paginação e traz todos os resultados
     if (safeLimit !== -1) {
       queryOptions.limit = safeLimit;
       queryOptions.offset = (Math.max(safePage, 1) - 1) * safeLimit;
