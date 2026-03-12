@@ -26,7 +26,7 @@ class CreateUserService {
    * @returns {Promise<Object>} O registro do usuário criado.
    * @throws {AppError} 400 - Se as senhas não coincidem ou e-mail já está cadastrado.
    */
-  async execute({ firstname, surname, cpf, phone, email, password, confirmPassword, endereco, bairro, cidade, cep, complemento }) {
+  async execute({ firstname, surname, cpf, phone, email, password, confirmPassword, endereco, bairro, cidade, estado, cep, complemento }) {
     if (password !== confirmPassword) {
       throw new AppError("As senhas não coincidem.", 400);
     }
@@ -36,7 +36,7 @@ class CreateUserService {
       throw new AppError("Este usuário já está cadastrado.", 400);
     }
 
-    const addressData = endereco ? { endereco, bairro, cidade, cep, complemento } : null;
+    const addressData = endereco ? { endereco, bairro, cidade, estado, cep, complemento } : null;
     const user = await userRepository.create({ firstname, surname, cpf, phone, email, password }, addressData);
     return user;
   }
