@@ -4,6 +4,7 @@ const authVerificationMiddleware = require("../../../shared/auth/auth-verificati
 
 const CreateOrderController = require("../http/controllers/create-order.controller");
 const GetOrderByIdController = require("../http/controllers/get-order-by-id.controller");
+const ListUserOrdersController = require("../http/controllers/list-user-orders.controller");
 
 const { createOrderValidator } = require("../http/validators/create-order.validator");
 const { getOrderByIdValidator } = require("../http/validators/get-order-by-id.validator");
@@ -18,6 +19,15 @@ router.post(
   authVerificationMiddleware,
   createOrderValidator,
   asyncHandler(CreateOrderController.handle)
+);
+
+/**
+ * Endpoint para Listar todos os Pedidos do Usuário Autenticado
+ */
+router.get(
+  "/v1/orders",
+  authVerificationMiddleware,
+  asyncHandler(ListUserOrdersController.handle)
 );
 
 /**

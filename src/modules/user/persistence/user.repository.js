@@ -103,6 +103,26 @@ class UserRepository {
     const [updated] = await User.update({ deleted_at: new Date() }, { where: { id: targetUserId, deleted_at: null } });
     return updated > 0;
   }
+  /**
+   * Cria ou atualiza o endereço de entrega de um usuário.
+   * Se já existir um endereço, atualiza-o. Caso contrário, cria um novo.
+   * @param {string} userId - UUID do usuário.
+   * @param {Object} addressData - Dados do endereço (endereco, bairro, cidade, estado, cep, complemento).
+   * @returns {Promise<Object>} O usuário atualizado com endereços incluídos.
+   */
+  async upsertAddress(userId, addressData) {
+    const existingAddress = await UserAddress.findOne({
+      where: { user_id: userId },
+    });
+
+    if (existingAddress) {
+      await existingAddress.update(addressData);
+    } else {
+      await UserAddress.create({ ...addressData, user_id: userId });
+    }
+
+    return await this.findById(userId);
+  }
 }
 
 module.exports = new UserRepository();

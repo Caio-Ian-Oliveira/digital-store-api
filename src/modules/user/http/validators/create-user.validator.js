@@ -43,6 +43,7 @@ const createUserSchema = z
     endereco: z.string().min(1, "Endereço não pode ser vazio").max(200, "Endereço deve ter no máximo 200 caracteres").optional(),
     bairro: z.string().min(1, "Bairro não pode ser vazio").max(100, "Bairro deve ter no máximo 100 caracteres").optional(),
     cidade: z.string().min(1, "Cidade não pode ser vazia").max(100, "Cidade deve ter no máximo 100 caracteres").optional(),
+    estado: z.string().min(1, "Estado não pode ser vazio").max(50, "Estado deve ter no máximo 50 caracteres").optional(),
     cep: z.string().min(1, "CEP não pode ser vazio").max(9, "CEP deve ter no máximo 9 caracteres").optional(),
     complemento: z.string().max(200, "Complemento deve ter no máximo 200 caracteres").optional(),
   })
@@ -52,7 +53,7 @@ const createUserSchema = z
     path: ["confirmPassword"],
   })
   .superRefine((data, ctx) => {
-    const addressFields = ["endereco", "bairro", "cidade", "cep"];
+    const addressFields = ["endereco", "bairro", "cidade", "estado", "cep"];
     const filled = addressFields.filter((f) => data[f] !== undefined);
 
     if (filled.length > 0 && filled.length < addressFields.length) {

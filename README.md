@@ -1,12 +1,14 @@
 # Digital Store API 🛍️
 
-API RESTful desenvolvida em Node.js para gerenciamento e e-commerce de uma loja digital ("Digital Store").
+**Projeto Final - Geração Tech 3.0** 🎓
+
+Esta API RESTful desenvolvida em Node.js é a entrega final referente ao módulo de Back-end do curso **Geração Tech 3.0**. Ela compõe o sistema de e-commerce da "Digital Store" e foi projetada para atuar em conjunto com uma **aplicação Front-end** (integração visual).
+
+API RESTful para gerenciamento e e-commerce de uma loja digital ("Digital Store").
 
 ## Descrição Geral
 
 A Digital Store API é o backend centralizado de um sistema de loja virtual. Ela fornece funcionalidades robustas para o gerenciamento de produtos, categorias (departamentos) e usuários, com suporte completo a autenticação JWT, uploads de imagens integrados ao Cloudinary, e controle de acesso baseado em Roles (RBAC - User/Admin).
-
-**Público-alvo:** Desenvolvedores frontend (web ou mobile) consumindo o backend para construir a interface da loja, bem como administradores de sistemas gerenciando inventário.
 
 ---
 
@@ -416,7 +418,7 @@ OK
 ```
 
 #### GET `/v1/product/search`
-- **Descrição:** Motor de busca poderoso de produtos na loja. Permite pesquisar por query, filtrar itens dentro de limites de preços (`min-max`), filtrar categorias por UUID (`category_ids`) e combinar opções dinâmicas.
+- **Descrição:** Motor de busca poderoso de produtos na loja. Permite pesquisar por query, filtrar itens dentro de limites de preços (`min-max`), filtrar categorias por UUID (`category_ids`), marca, gênero e combinar opções dinâmicas.
 - **Autenticação:** Não (Pública)
 - **Middlewares:** `searchProductValidator`
 - **Query Params:**
@@ -425,6 +427,8 @@ OK
   - `fields` (string. ex: `name,price`)
   - `match` (string, pesquisa LIKE % % no titulo e descricão)
   - `category_ids` (Lista de categorys UUIDs CSV)
+  - `brand` (string, filtro exato por marca. ex: `Puma`)
+  - `gender` (Enum: `Masculino`, `Feminino`, `Unisex`)
   - `price-range` (string formato min-max. Ex: `100-200`)
   - `option[ID]=valor` (Múltiplas sub-buscas nas chaves de opções JSON)
 - **Response 200:**
@@ -468,6 +472,49 @@ OK
 - **Response 204:** No Content.
 
 ---
+### 🛒 Módulo: Carrinho (Cart)
+
+#### GET `/v1/cart`
+- **Descrição:** Retorna o estado atual do carrinho do usuário autenticado (incluindo cálculo de totais em tempo real).
+- **Autenticação:** Sim (Bearer Token)
+
+#### POST `/v1/cart/add`
+- **Descrição:** Adiciona um novo produto ou incrementa a quantidade caso o mesmo já exista no carrinho.
+- **Autenticação:** Sim (Bearer Token)
+- **Body Exemplo:** `{"product_id": 1, "quantity": 1, "selected_color": "#000000", "selected_size": "40"}`
+
+#### PUT `/v1/cart/update/:itemId`
+- **Descrição:** Atualiza a quantidade de um item já existente no carrinho.
+- **Autenticação:** Sim (Bearer Token)
+
+#### DELETE `/v1/cart/remove/:itemId`
+- **Descrição:** Remove completamente um item do carrinho.
+- **Autenticação:** Sim (Bearer Token)
+
+#### DELETE `/v1/cart/clear`
+- **Descrição:** Limpa todos os itens do carrinho do usuário.
+- **Autenticação:** Sim (Bearer Token)
+
+---
+### 🚚 Módulo: Pedidos (Orders)
+
+#### POST `/v1/orders`
+- **Descrição:** Realiza o "Checkout". Converte os itens do Carrinho em um pedido fechado, calculando totais de pagamento e salvando o histórico unificado. Em seguida, limpa o carrinho.
+- **Autenticação:** Sim (Bearer Token)
+- **Body Exemplo:** `{"personal_info": {...}, "delivery_address": {...}, "payment_info": {...}}`
+
+#### GET `/v1/orders`
+- **Descrição:** Lista o histórico de pedidos efetuados pelo usuário autenticado, ordenados do mais recente ao mais antigo com paginação.
+- **Autenticação:** Sim (Bearer Token)
+- **Query Params:**
+  - `limit` (padrão: 10)
+  - `page` (padrão: 1)
+
+#### GET `/v1/orders/:id`
+- **Descrição:** Obtém os detalhes completos de um pedido fechado. Só permite visualização se o pedido pertencer ao usuário (ou se for papel ADMIN).
+- **Autenticação:** Sim (Bearer Token)
+
+---
 
 ## Banco de Dados
 
@@ -480,6 +527,8 @@ A API utiliza amplamente banco Relacional suportado pelo `MySQL` governado pelo 
 - **ProductImage:** Controle N:1 (Filho para pai) referenciando os Assets/URLs gerados no Cloudinary por produto.
 - **ProductOption:** Possibilita que um Produto tenha múltiplos sub-variações estruturalmente descritivas com JSON/String (Tamanhos 39, 40 / Cores Azul, Vermelha).
 - **ProductCategory** (Through Table / Pivot): Tabela agregadora de relacionamento Muitos-Para-Muitos (N:N) que lida com as Associações de Várias Categorias sendo marcadas por Vários Produtos simultaneamente.
+- **Cart & CartItem:** Controle temporário do carrinho de compras ativo dos usuários.
+- **Order & OrderItem:** Registro histórico permanente e imutável de uma transação finalizada via Checkout.
 
 ### Diagrama ER
 ```mermaid
@@ -507,6 +556,8 @@ erDiagram
         boolean enabled
         string name
         string slug
+        string brand
+        string gender
         boolean use_in_menu
         int stock
         string description
@@ -536,11 +587,55 @@ erDiagram
         UUID category_id FK
     }
 
+    cart {
+        int id PK
+        UUID user_id FK
+    }
+
+    cart_item {
+        int id PK
+        int cart_id FK
+        int product_id FK
+        int quantity
+        string selected_color
+        string selected_size
+    }
+
+    order {
+        int id PK
+        UUID user_id FK
+        string status
+        float subtotal
+        float shipping
+        float discount
+        float total
+        json personal_info
+        json delivery_address
+        json payment_info
+    }
+
+    order_item {
+        int id PK
+        int order_id FK
+        int product_id FK
+        string product_name
+        string image_url
+        int quantity
+        float price_at_purchase
+        string selected_color
+        string selected_size
+    }
+
+    user ||--o| cart : has
+    cart ||--o{ cart_item : contains
+    cart_item }o--|| product : refers_to
+    user ||--o{ order : places
+    order ||--o{ order_item : contains
+    order_item }o--|| product : refers_to
     category ||--o{ product_category : has
     product ||--o{ product_category : has
     product ||--o{ product_image : has
     product ||--o{ product_option : has
-
 ```
 
 ---

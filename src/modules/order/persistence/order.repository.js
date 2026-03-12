@@ -118,6 +118,48 @@ class OrderRepository {
   }
 
   /**
+   * Retorna todos os pedidos de um usuário, ordenados do mais recente para o mais antigo, com paginação.
+   * @param {string} userId - ID do usuário.
+   * @param {Object} pagination - Parâmetros de paginação.
+   * @param {number} pagination.limit - Limite de itens.
+   * @param {number} pagination.page - Página atual.
+   * @returns {Promise<{data: Array, total: number, limit: number, page: number}>} Lista de pedidos e totais.
+   */
+  async findAllByUser(userId, { limit, page } = {}) {
+    // 1. Paginação Segura: Garantindo valores padrões caso o Frontend não envie
+    const safeLimit = parseInt(limit, 10) || 10;
+    const safePage = parseInt(page, 10) || 1;
+    
+    const queryOptions = {
+      where: { user_id: userId },
+      include: [
+        {
+          model: OrderItem,
+          as: "items",
+        },
+      ],
+      order: [["created_at", "DESC"]],
+      distinct: true,
+    };
+    
+    // 2. Aplicar offset baseado na página solicitada
+    // Se limit for -1, ignora a paginação e traz todos os resultados
+    if (safeLimit !== -1) {
+      queryOptions.limit = safeLimit;
+      queryOptions.offset = (Math.max(safePage, 1) - 1) * safeLimit;
+    }
+
+    const { count, rows } = await Order.findAndCountAll(queryOptions);
+
+    return {
+      data: rows,
+      total: count,
+      limit: safeLimit,
+      page: safePage,
+    };
+  }
+
+  /**
    * Retorna os detalhes de um pedido.
    * @param {string} orderId - ID ou UUID do pedido.
    * @param {string} userId - ID do dono verificador daquele pedido (Segurança)
