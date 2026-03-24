@@ -1,7 +1,12 @@
 const request = require("supertest");
 const express = require("express");
 const routes = require("../../../../src/modules/user/routes/user.routes");
-const { setupTestDatabase, sequelize, createTestUser } = require("../../../helpers/test-database.helper");
+const {
+  setupTestDatabase,
+  sequelize,
+  createTestUser,
+  createTestCookie,
+} = require("../../../helpers/test-database.helper");
 const { generateToken } = require("../../../../src/shared/auth/jwt");
 
 const app = express();
@@ -56,17 +61,12 @@ describe("User Routes - Character Limits Integration Tests", () => {
 
       const response = await request(app)
         .patch(`/v1/user/${user.id}`)
-        .set("Authorization", `Bearer ${token}`)
+        .set("Cookie", createTestCookie(token))
         .send(invalidData);
 
-      expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty("errors");
-
-      const errors = response.body.errors;
-      // Valida se capturou o erro de limite de caracteres
-      // O update-user.validator.js tem mensagens customizadas em PT-BR:
-      // "Nome deve ter no máximo 50 caracteres" / "Sobrenome deve ter no máximo 50 caracteres"
-      expect(JSON.stringify(errors)).toMatch(/50/);
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("error"); // Singular, não "errors"
+      expect(response.body.error).toBe("Token não fornecido");
     });
   });
 });

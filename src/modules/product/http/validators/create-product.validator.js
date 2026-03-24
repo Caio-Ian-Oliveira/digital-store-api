@@ -2,7 +2,17 @@ const { z } = require("zod");
 
 /** Schema Zod de validação para criação de imagem de produto (URL do Cloudinary). */
 const imageSchema = z.object({
-  type: z.string({ required_error: "Tipo da imagem é obrigatório" }),
+  type: z
+    .string({ required_error: "Tipo da imagem é obrigatório" })
+    .refine(
+      (val) => {
+        // Aceita MIME types (image/jpeg, image/png, etc.) OU nomenclatura frontend (main, secondary)
+        return val.startsWith("image/") || ["main", "secondary"].includes(val);
+      },
+      {
+        message: "Tipo deve ser um MIME type (image/jpeg, image/png) ou categoria (main, secondary)",
+      }
+    ),
   content: z.string({ required_error: "URL da imagem é obrigatória" }).url("Conteúdo deve ser uma URL válida"),
 });
 
@@ -52,6 +62,7 @@ const createProductSchema = z
     gender: z.enum(["Masculino", "Feminino", "Unisex"]).optional(),
     price: z.number({ required_error: "Preço é obrigatório" }).positive("Preço deve ser positivo"),
     price_with_discount: z.number().positive("Preço com desconto deve ser positivo").optional(),
+    display_order: z.number().int().min(0, "Ordem de exibição deve ser um número positivo").optional(),
     category_ids: z
       .array(z.uuid("Cada category_id deve ser um UUID válido"), { required_error: "Pelo menos uma categoria é obrigatória" })
       .min(1, "Pelo menos uma categoria é obrigatória"),
