@@ -97,7 +97,6 @@ public
 
 # dotenv environment variables file
 .env
-.env.*
 
 # Mac system files
 .DS_Store

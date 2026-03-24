@@ -1,14 +1,54 @@
-# Digital Store API 🛍️
+# 🛒 Digital Store — Projeto Back-end (API)
 
-**Projeto Final - Geração Tech 3.0** 🎓
+<div align="center">
+  <img src="https://raw.githubusercontent.com/CaioIan/digital-store-api/main/assets/logo-header.svg" alt="Digital Store Logo" height="50" />
+  <br /><br />
 
-Esta API RESTful desenvolvida em Node.js é a entrega final referente ao módulo de Back-end do curso **Geração Tech 3.0**. Ela compõe o sistema de e-commerce da "Digital Store" e foi projetada para atuar em conjunto com uma **aplicação Front-end** (integração visual).
+  ![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white)
+  ![Express](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)
+  ![Sequelize](https://img.shields.io/badge/Sequelize-6-52B0E7?logo=sequelize&logoColor=white)
+  ![MySQL](https://img.shields.io/badge/MySQL-8-4479A1?logo=mysql&logoColor=white)
+  ![JWT](https://img.shields.io/badge/JWT-9-000000?logo=jsonwebtokens&logoColor=white)
+  ![Zod](https://img.shields.io/badge/Zod-4-3E67B1?logo=zod&logoColor=white)
+  ![Jest](https://img.shields.io/badge/Jest-30-C21325?logo=jest&logoColor=white)
+  ![Biome](https://img.shields.io/badge/Biome-2.3-60A5FA?logo=biome&logoColor=white)
+  ![License](https://img.shields.io/badge/Licença-MIT-green)
+</div>
 
-API RESTful para gerenciamento e e-commerce de uma loja digital ("Digital Store").
+<br />
 
-## Descrição Geral
+> [!IMPORTANT]
+> **Projeto Final — Geração Tech 3.0**
+> Este repositório contém o **Back-end (API)** da plataforma **Digital Store**, desenvolvido como **Trabalho Final do Curso** do **Geração Tech 3.0**. Trata-se de um E-commerce para vestuário e acessórios.
 
-A Digital Store API é o backend centralizado de um sistema de loja virtual. Ela fornece funcionalidades robustas para o gerenciamento de produtos, categorias (departamentos) e usuários, com suporte completo a autenticação JWT, uploads de imagens integrados ao Cloudinary, e controle de acesso baseado em Roles (RBAC - User/Admin).
+---
+
+## 📦 O Ecossistema Digital Store
+
+O projeto **Digital Store** é composto por **3 repositórios independentes** que juntos formam um ecossistema completo de E-commerce:
+
+| Repositório | Descrição | Responsável por |
+|---|---|---|
+| **🖥️ digital-store-frontend** [https://github.com/CaioIan/digital-store-frontend] | Interface do consumidor final | Navegação de produtos, carrinho, checkout, gestão de pedidos e perfil do usuário |
+| **🔧 digital-store-api** (este repo) | API RESTful | Autenticação, CRUD de produtos, gestão de pedidos, controle de estoque, processamento de pagamentos e lógica de negócio |
+| **📊 digital-store-admin** [https://github.com/CaioIan/digital-store-admin] | Painel administrativo | Cadastro/edição de produtos, gestão de categorias/marcas, visualização de pedidos e métricas do negócio |
+
+### Como os projetos se conectam
+
+```
+┌──────────────────────┐         ┌──────────────────┐         ┌──────────────────────┐
+│   Front-end Cliente  │◄───────►│    API (Back-end) │◄───────►│   Front-end Admin    │
+│ (digital-store-frontend) │  HTTP   │   (Este repositório)  │  HTTP   │ (digital-store-admin)  │
+│                      │ Cookies │                   │         │                      │
+│  • Catálogo          │         │  • Auth JWT       │         │  • CRUD de Produtos  │
+│  • Carrinho          │         │  • Rotas REST     │         │  • Gestão de Pedidos │
+│  • Checkout          │         │  • Banco de Dados │         │  • Categorias/Marcas │
+│  • Meus Pedidos      │         │  • Upload Imagens │         │  • Dashboard         │
+│  • Perfil do Usuário │         │  • Validações     │         │                      │
+└──────────────────────┘         └──────────────────┘         └──────────────────────┘
+```
+
+> O **Front-end do Cliente** consome a mesma API que o **Painel Admin**, porém com permissões e endpoints diferentes. A autenticação é feita via **HTTP-Only Cookies**, garantindo segurança contra ataques XSS.
 
 ---
 
