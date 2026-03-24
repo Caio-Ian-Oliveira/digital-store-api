@@ -1,11 +1,13 @@
 const request = require("supertest");
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const { generateToken } = require("../../../../src/shared/auth/jwt");
 const { Product, Category, ProductOption, ProductImage, sequelize } = require("../../../../src/models");
 const productRoutes = require("../../../../src/modules/product/routes/product.routes");
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 app.use(productRoutes);
 const errorHandler = require("../../../../src/shared/middlewares/error-handler.middleware");
 app.use(errorHandler);
@@ -197,12 +199,13 @@ describe("List Products - Integration Tests", () => {
   it("GET /v1/product/search - Deve projetar campos (fields)", async () => {
     await createScenario();
 
-    const response = await request(app).get("/v1/product/search?fields=name,slug");
+    const response = await request(app).get("/v1/product/search?fields=name,slug,display_order");
 
     expect(response.status).toBe(200);
     const product = response.body.data[0];
     expect(product).toHaveProperty("name");
     expect(product).toHaveProperty("slug");
+    expect(product).toHaveProperty("display_order");
     expect(product).toHaveProperty("id"); // ID é forçado sempre
     expect(product.price).toBeUndefined(); // Não pediu price
   });

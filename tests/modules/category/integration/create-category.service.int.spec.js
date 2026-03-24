@@ -1,12 +1,15 @@
 const request = require("supertest");
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const { generateToken } = require("../../../../src/shared/auth/jwt");
+const { createTestCookie } = require("../../../../tests/helpers/test-database.helper");
 const { Category, sequelize } = require("../../../../src/models");
 const categoryRoutes = require("../../../../src/modules/category/routes/category.routes");
 
 // Setup da aplicação Express para o teste
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 app.use(categoryRoutes);
 
 const errorHandler = require("../../../../src/shared/middlewares/error-handler.middleware");
@@ -52,11 +55,9 @@ describe("Create Category - Integration Tests", () => {
 
   it("POST /v1/category - Deve criar uma categoria com sucesso (ADMIN)", async () => {
     const token = generateToken(adminPayload);
+    const cookie = createTestCookie(token);
 
-    const response = await request(app)
-      .post("/v1/category")
-      .set("Authorization", `Bearer ${token}`)
-      .send(validCategory);
+    const response = await request(app).post("/v1/category").set("Cookie", cookie).send(validCategory);
 
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty("id");
@@ -71,11 +72,9 @@ describe("Create Category - Integration Tests", () => {
 
   it("POST /v1/category - Deve retornar 403 se o usuário não for ADMIN", async () => {
     const token = generateToken(userPayload);
+    const cookie = createTestCookie(token);
 
-    const response = await request(app)
-      .post("/v1/category")
-      .set("Authorization", `Bearer ${token}`)
-      .send(validCategory);
+    const response = await request(app).post("/v1/category").set("Cookie", cookie).send(validCategory);
 
     expect(response.status).toBe(403);
     expect(response.body).toHaveProperty("error");
@@ -92,12 +91,13 @@ describe("Create Category - Integration Tests", () => {
 
   it("POST /v1/category - Deve retornar 400 se houver erro de validação (Schema)", async () => {
     const token = generateToken(adminPayload);
+    const cookie = createTestCookie(token);
     const invalidData = {
       name: "", // Nome vazio inválido
       // slug faltando
     };
 
-    const response = await request(app).post("/v1/category").set("Authorization", `Bearer ${token}`).send(invalidData);
+    const response = await request(app).post("/v1/category").set("Cookie", cookie).send(invalidData);
 
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty("errors");
@@ -105,15 +105,13 @@ describe("Create Category - Integration Tests", () => {
 
   it("POST /v1/category - Deve retornar 400 se a categoria já existir (Duplicidade)", async () => {
     const token = generateToken(adminPayload);
+    const cookie = createTestCookie(token);
 
     // Cria a primeira vez
     await Category.create(validCategory);
 
     // Tenta criar novamente com os mesmos dados
-    const response = await request(app)
-      .post("/v1/category")
-      .set("Authorization", `Bearer ${token}`)
-      .send(validCategory);
+    const response = await request(app).post("/v1/category").set("Cookie", cookie).send(validCategory);
 
     expect(response.status).toBe(400);
     expect(response.body.message).toMatch(/já existe/i);
@@ -121,6 +119,7 @@ describe("Create Category - Integration Tests", () => {
 
   it("POST /v1/category - Deve retornar 400 se o nome ou slug excederem o limite de caracteres", async () => {
     const token = generateToken(adminPayload);
+    const cookie = createTestCookie(token);
     const longString = "a".repeat(51);
 
     const invalidData = {
@@ -129,7 +128,7 @@ describe("Create Category - Integration Tests", () => {
       use_in_menu: true,
     };
 
-    const response = await request(app).post("/v1/category").set("Authorization", `Bearer ${token}`).send(invalidData);
+    const response = await request(app).post("/v1/category").set("Cookie", cookie).send(invalidData);
 
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty("errors");

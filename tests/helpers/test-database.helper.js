@@ -1,5 +1,6 @@
 // Helper para testes de integração - Configuração do banco de testes
 const { sequelize, User, UserAddress, Cart, CartItem, Order, OrderItem } = require("../../src/models");
+const { generateToken } = require("../../src/shared/auth/jwt");
 
 /**
  * Inicializa o banco de testes antes de executar os testes
@@ -92,12 +93,37 @@ async function createTestAdmin(userData = {}) {
   return await User.create({ ...defaultData, ...userData });
 }
 
+/**
+ * Cria um token JWT para testes
+ */
+function createTestToken(userData) {
+  return generateToken({ sub: userData.id, role: userData.role });
+}
+
+/**
+ * Converte token em formato de cookie para testes
+ */
+function createTestCookie(token) {
+  return `access_token=${token}`;
+}
+
+/**
+ * Cria cookie de autenticação diretamente de dados do usuário
+ */
+function createAuthCookieForUser(userData) {
+  const token = createTestToken(userData);
+  return createTestCookie(token);
+}
+
 module.exports = {
   setupTestDatabase,
   clearTestDatabase,
   closeTestDatabase,
   createTestUser,
   createTestAdmin,
+  createTestToken,
+  createTestCookie,
+  createAuthCookieForUser,
   sequelize,
   User,
   UserAddress,

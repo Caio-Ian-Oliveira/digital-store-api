@@ -130,6 +130,7 @@ class ProductRepository {
       "use_in_menu",
       "display_order",
     ];
+
     if (fields) {
       const requestedFields = fields.split(",").map((f) => f.trim());
       if (!requestedFields.includes("id")) requestedFields.unshift("id");

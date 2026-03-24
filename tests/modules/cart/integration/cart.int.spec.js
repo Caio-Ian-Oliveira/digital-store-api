@@ -1,13 +1,14 @@
 const request = require("supertest");
 const app = require("../../../../src/app");
 const { sequelize, User, Product, Cart, CartItem, ProductImage } = require("../../../../src/models");
+const { createTestCookie } = require("../../../../tests/helpers/test-database.helper");
 const { generateToken } = require("../../../../src/shared/auth/jwt");
 
 describe("Cart Module Integration Tests", () => {
   let userA;
   let userB;
-  let tokenA;
-  let tokenB;
+  let cookieA;
+  let cookieB;
   let product1;
   let product2;
   let disabledProduct;
@@ -45,6 +46,9 @@ describe("Cart Module Integration Tests", () => {
 
     tokenA = generateToken({ sub: userA.id, role: userA.role });
     tokenB = generateToken({ sub: userB.id, role: userB.role });
+
+    cookieA = createTestCookie(tokenA);
+    cookieB = createTestCookie(tokenB);
 
     // Cria produtos para os testes
     product1 = await Product.create({
@@ -100,9 +104,7 @@ describe("Cart Module Integration Tests", () => {
   // ==========================================
   describe("GET /v1/cart", () => {
     it("deve retornar carrinho vazio quando não há itens", async () => {
-      const response = await request(app)
-        .get("/v1/cart")
-        .set("Authorization", `Bearer ${tokenA}`);
+      const response = await request(app).get("/v1/cart").set("Cookie", cookieA);
 
       expect(response.status).toBe(200);
       expect(response.body.cart).toBeDefined();
@@ -120,9 +122,7 @@ describe("Cart Module Integration Tests", () => {
         selected_size: "42",
       });
 
-      const response = await request(app)
-        .get("/v1/cart")
-        .set("Authorization", `Bearer ${tokenA}`);
+      const response = await request(app).get("/v1/cart").set("Cookie", cookieA);
 
       expect(response.status).toBe(200);
       expect(response.body.cart.items).toHaveLength(1);
@@ -150,15 +150,12 @@ describe("Cart Module Integration Tests", () => {
   // ==========================================
   describe("POST /v1/cart/add", () => {
     it("deve adicionar um produto ao carrinho", async () => {
-      const response = await request(app)
-        .post("/v1/cart/add")
-        .set("Authorization", `Bearer ${tokenA}`)
-        .send({
-          product_id: product1.id,
-          quantity: 1,
-          selected_color: "Azul",
-          selected_size: "42",
-        });
+      const response = await request(app).post("/v1/cart/add").set("Cookie", cookieA).send({
+        product_id: product1.id,
+        quantity: 1,
+        selected_color: "Azul",
+        selected_size: "42",
+      });
 
       expect(response.status).toBe(201);
       expect(response.body.product_id).toBe(product1.id);
@@ -168,56 +165,42 @@ describe("Cart Module Integration Tests", () => {
 
     it("deve somar a quantidade quando o mesmo item já existe", async () => {
       // Adiciona pela primeira vez
-      await request(app)
-        .post("/v1/cart/add")
-        .set("Authorization", `Bearer ${tokenA}`)
-        .send({
-          product_id: product1.id,
-          quantity: 2,
-          selected_color: "Azul",
-          selected_size: "42",
-        });
+      await request(app).post("/v1/cart/add").set("Cookie", cookieA).send({
+        product_id: product1.id,
+        quantity: 2,
+        selected_color: "Azul",
+        selected_size: "42",
+      });
 
       // Adiciona novamente — deve somar
-      const response = await request(app)
-        .post("/v1/cart/add")
-        .set("Authorization", `Bearer ${tokenA}`)
-        .send({
-          product_id: product1.id,
-          quantity: 3,
-          selected_color: "Azul",
-          selected_size: "42",
-        });
+      const response = await request(app).post("/v1/cart/add").set("Cookie", cookieA).send({
+        product_id: product1.id,
+        quantity: 3,
+        selected_color: "Azul",
+        selected_size: "42",
+      });
 
       expect(response.status).toBe(201);
       expect(response.body.quantity).toBe(5); // 2 + 3
     });
 
     it("deve criar novo item quando cor/tamanho for diferente", async () => {
-      await request(app)
-        .post("/v1/cart/add")
-        .set("Authorization", `Bearer ${tokenA}`)
-        .send({
-          product_id: product1.id,
-          quantity: 1,
-          selected_color: "Azul",
-          selected_size: "42",
-        });
+      await request(app).post("/v1/cart/add").set("Cookie", cookieA).send({
+        product_id: product1.id,
+        quantity: 1,
+        selected_color: "Azul",
+        selected_size: "42",
+      });
 
-      await request(app)
-        .post("/v1/cart/add")
-        .set("Authorization", `Bearer ${tokenA}`)
-        .send({
-          product_id: product1.id,
-          quantity: 1,
-          selected_color: "Preto",
-          selected_size: "44",
-        });
+      await request(app).post("/v1/cart/add").set("Cookie", cookieA).send({
+        product_id: product1.id,
+        quantity: 1,
+        selected_color: "Preto",
+        selected_size: "44",
+      });
 
       // Verifica que existem 2 itens diferentes
-      const listResponse = await request(app)
-        .get("/v1/cart")
-        .set("Authorization", `Bearer ${tokenA}`);
+      const listResponse = await request(app).get("/v1/cart").set("Cookie", cookieA);
 
       expect(listResponse.body.cart.items).toHaveLength(2);
     });
@@ -225,7 +208,7 @@ describe("Cart Module Integration Tests", () => {
     it("deve rejeitar product_id inexistente (404)", async () => {
       const response = await request(app)
         .post("/v1/cart/add")
-        .set("Authorization", `Bearer ${tokenA}`)
+        .set("Cookie", cookieA)
         .send({ product_id: 99999, quantity: 1 });
 
       expect(response.status).toBe(404);
@@ -235,7 +218,7 @@ describe("Cart Module Integration Tests", () => {
     it("deve rejeitar produto desabilitado (400)", async () => {
       const response = await request(app)
         .post("/v1/cart/add")
-        .set("Authorization", `Bearer ${tokenA}`)
+        .set("Cookie", cookieA)
         .send({ product_id: disabledProduct.id, quantity: 1 });
 
       expect(response.status).toBe(400);
@@ -243,19 +226,14 @@ describe("Cart Module Integration Tests", () => {
     });
 
     it("deve retornar 400 com body inválido", async () => {
-      const response = await request(app)
-        .post("/v1/cart/add")
-        .set("Authorization", `Bearer ${tokenA}`)
-        .send({ quantity: 1 }); // sem product_id
+      const response = await request(app).post("/v1/cart/add").set("Cookie", cookieA).send({ quantity: 1 }); // sem product_id
 
       expect(response.status).toBe(400);
       expect(response.body.errors).toBeDefined();
     });
 
     it("deve retornar 401 sem token", async () => {
-      const response = await request(app)
-        .post("/v1/cart/add")
-        .send({ product_id: product1.id, quantity: 1 });
+      const response = await request(app).post("/v1/cart/add").send({ product_id: product1.id, quantity: 1 });
 
       expect(response.status).toBe(401);
     });
@@ -269,15 +247,12 @@ describe("Cart Module Integration Tests", () => {
       // Cria item
       const addResponse = await request(app)
         .post("/v1/cart/add")
-        .set("Authorization", `Bearer ${tokenA}`)
+        .set("Cookie", cookieA)
         .send({ product_id: product1.id, quantity: 1 });
 
       const itemId = addResponse.body.id;
 
-      const response = await request(app)
-        .put(`/v1/cart/update/${itemId}`)
-        .set("Authorization", `Bearer ${tokenA}`)
-        .send({ quantity: 5 });
+      const response = await request(app).put(`/v1/cart/update/${itemId}`).set("Cookie", cookieA).send({ quantity: 5 });
 
       expect(response.status).toBe(200);
       expect(response.body.quantity).toBe(5);
@@ -287,7 +262,7 @@ describe("Cart Module Integration Tests", () => {
       // Usuário A adiciona item
       const addResponse = await request(app)
         .post("/v1/cart/add")
-        .set("Authorization", `Bearer ${tokenA}`)
+        .set("Cookie", cookieA)
         .send({ product_id: product1.id, quantity: 1 });
 
       const itemId = addResponse.body.id;
@@ -295,7 +270,7 @@ describe("Cart Module Integration Tests", () => {
       // Usuário B tenta atualizar
       const response = await request(app)
         .put(`/v1/cart/update/${itemId}`)
-        .set("Authorization", `Bearer ${tokenB}`)
+        .set("Cookie", cookieB)
         .send({ quantity: 10 });
 
       expect(response.status).toBe(403);
@@ -305,7 +280,7 @@ describe("Cart Module Integration Tests", () => {
       const fakeUuid = "00000000-0000-0000-0000-000000000000";
       const response = await request(app)
         .put(`/v1/cart/update/${fakeUuid}`)
-        .set("Authorization", `Bearer ${tokenA}`)
+        .set("Cookie", cookieA)
         .send({ quantity: 5 });
 
       expect(response.status).toBe(404);
@@ -314,7 +289,7 @@ describe("Cart Module Integration Tests", () => {
     it("deve retornar 400 para itemId inválido (não UUID)", async () => {
       const response = await request(app)
         .put("/v1/cart/update/invalid-id")
-        .set("Authorization", `Bearer ${tokenA}`)
+        .set("Cookie", cookieA)
         .send({ quantity: 5 });
 
       expect(response.status).toBe(400);
@@ -329,21 +304,17 @@ describe("Cart Module Integration Tests", () => {
     it("deve remover um item do carrinho", async () => {
       const addResponse = await request(app)
         .post("/v1/cart/add")
-        .set("Authorization", `Bearer ${tokenA}`)
+        .set("Cookie", cookieA)
         .send({ product_id: product1.id, quantity: 1 });
 
       const itemId = addResponse.body.id;
 
-      const response = await request(app)
-        .delete(`/v1/cart/remove/${itemId}`)
-        .set("Authorization", `Bearer ${tokenA}`);
+      const response = await request(app).delete(`/v1/cart/remove/${itemId}`).set("Cookie", cookieA);
 
       expect(response.status).toBe(204);
 
       // Verifica que o carrinho está vazio
-      const listResponse = await request(app)
-        .get("/v1/cart")
-        .set("Authorization", `Bearer ${tokenA}`);
+      const listResponse = await request(app).get("/v1/cart").set("Cookie", cookieA);
 
       expect(listResponse.body.cart.items).toHaveLength(0);
     });
@@ -351,23 +322,19 @@ describe("Cart Module Integration Tests", () => {
     it("deve retornar 403 ao tentar remover item de outro usuário", async () => {
       const addResponse = await request(app)
         .post("/v1/cart/add")
-        .set("Authorization", `Bearer ${tokenA}`)
+        .set("Cookie", cookieA)
         .send({ product_id: product1.id, quantity: 1 });
 
       const itemId = addResponse.body.id;
 
-      const response = await request(app)
-        .delete(`/v1/cart/remove/${itemId}`)
-        .set("Authorization", `Bearer ${tokenB}`);
+      const response = await request(app).delete(`/v1/cart/remove/${itemId}`).set("Cookie", cookieB);
 
       expect(response.status).toBe(403);
     });
 
     it("deve retornar 404 para itemId inexistente", async () => {
       const fakeUuid = "00000000-0000-0000-0000-000000000000";
-      const response = await request(app)
-        .delete(`/v1/cart/remove/${fakeUuid}`)
-        .set("Authorization", `Bearer ${tokenA}`);
+      const response = await request(app).delete(`/v1/cart/remove/${fakeUuid}`).set("Cookie", cookieA);
 
       expect(response.status).toBe(404);
     });
@@ -379,34 +346,22 @@ describe("Cart Module Integration Tests", () => {
   describe("DELETE /v1/cart/clear", () => {
     it("deve limpar todos os itens do carrinho", async () => {
       // Adiciona dois produtos
-      await request(app)
-        .post("/v1/cart/add")
-        .set("Authorization", `Bearer ${tokenA}`)
-        .send({ product_id: product1.id, quantity: 2 });
+      await request(app).post("/v1/cart/add").set("Cookie", cookieA).send({ product_id: product1.id, quantity: 2 });
 
-      await request(app)
-        .post("/v1/cart/add")
-        .set("Authorization", `Bearer ${tokenA}`)
-        .send({ product_id: product2.id, quantity: 1 });
+      await request(app).post("/v1/cart/add").set("Cookie", cookieA).send({ product_id: product2.id, quantity: 1 });
 
-      const response = await request(app)
-        .delete("/v1/cart/clear")
-        .set("Authorization", `Bearer ${tokenA}`);
+      const response = await request(app).delete("/v1/cart/clear").set("Cookie", cookieA);
 
       expect(response.status).toBe(204);
 
       // Verifica que o carrinho está vazio
-      const listResponse = await request(app)
-        .get("/v1/cart")
-        .set("Authorization", `Bearer ${tokenA}`);
+      const listResponse = await request(app).get("/v1/cart").set("Cookie", cookieA);
 
       expect(listResponse.body.cart.items).toHaveLength(0);
     });
 
     it("deve retornar 204 mesmo com carrinho vazio", async () => {
-      const response = await request(app)
-        .delete("/v1/cart/clear")
-        .set("Authorization", `Bearer ${tokenA}`);
+      const response = await request(app).delete("/v1/cart/clear").set("Cookie", cookieA);
 
       expect(response.status).toBe(204);
     });

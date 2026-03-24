@@ -3,6 +3,7 @@ const app = require("../../../../src/app");
 const { sequelize } = require("../../../../src/models");
 const { Product, User } = require("../../../../src/models");
 const { generateToken } = require("../../../../src/shared/auth/jwt");
+const { createTestCookie } = require("../../../../tests/helpers/test-database.helper");
 
 describe("Delete Product Integration Test", () => {
   let adminToken;
@@ -82,7 +83,7 @@ describe("Delete Product Integration Test", () => {
   it("deve deletar um produto com sucesso quando autenticado como ADMIN", async () => {
     const response = await request(app)
       .delete(`/v1/product/${createdProduct.id}`)
-      .set("Authorization", `Bearer ${adminToken}`);
+      .set("Cookie", createTestCookie(adminToken));
 
     expect(response.status).toBe(204);
 
@@ -95,7 +96,7 @@ describe("Delete Product Integration Test", () => {
     const nonExistentId = 99999;
     const response = await request(app)
       .delete(`/v1/product/${nonExistentId}`)
-      .set("Authorization", `Bearer ${adminToken}`);
+      .set("Cookie", createTestCookie(adminToken));
 
     expect(response.status).toBe(404);
     expect(response.body).toHaveProperty("message", "Recurso não encontrado.");
@@ -110,13 +111,13 @@ describe("Delete Product Integration Test", () => {
   it("deve retornar 403 ao tentar deletar como usuário não-ADMIN", async () => {
     const response = await request(app)
       .delete(`/v1/product/${createdProduct.id}`)
-      .set("Authorization", `Bearer ${userToken}`);
+      .set("Cookie", createTestCookie(userToken));
 
     expect(response.status).toBe(403);
   });
 
   it("deve retornar 400 quando o ID for inválido", async () => {
-    const response = await request(app).delete(`/v1/product/invalid-id`).set("Authorization", `Bearer ${adminToken}`);
+    const response = await request(app).delete(`/v1/product/invalid-id`).set("Cookie", createTestCookie(adminToken));
 
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty("errors");
