@@ -1,7 +1,5 @@
 # 🛒 Digital Store — Projeto Back-end (API)
 
-<div align="center">
-  <img src="https://raw.githubusercontent.com/CaioIan/digital-store-api/main/assets/logo-header.svg" alt="Digital Store Logo" height="50" />
   <br /><br />
 
   ![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white)
