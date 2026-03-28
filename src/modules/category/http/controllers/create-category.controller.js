@@ -30,7 +30,18 @@ const CreateCategoryService = require("../../core/services/create-category.servi
  *       201:
  *         description: Categoria criada com sucesso
  *       400:
- *         description: Erro de validação
+ *         description: Erro de validação ou nome/slug já existente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: fail
+ *                 message:
+ *                   type: string
+ *                   example: Categoria já existe (nome ou slug duplicado)
  */
 
 /**

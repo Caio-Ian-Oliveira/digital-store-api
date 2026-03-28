@@ -120,15 +120,18 @@ const CreateUserResponseDto = require("../dto/response/create-user.response.dto"
  *                         nullable: true
  *                         example: Apto 42
  *       400:
- *         description: Dados inválidos ou senhas não conferem
+ *         description: Erro de validação (campos inválidos, senhas não conferem ou e-mail duplicado)
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 status:
  *                   type: string
- *                   example: As senhas não coincidem
+ *                   example: fail
+ *                 message:
+ *                   type: string
+ *                   example: "Erro de cadastro: e-mail já em uso."
  *                 errors:
  *                   type: array
  *                   items:
@@ -139,7 +142,7 @@ const CreateUserResponseDto = require("../dto/response/create-user.response.dto"
  *                         example: email
  *                       message:
  *                         type: string
- *                         example: Email inválido
+ *                         example: Este endereço de e-mail já está cadastrado.
  */
 
 /**
