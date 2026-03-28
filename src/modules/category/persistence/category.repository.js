@@ -1,4 +1,5 @@
-const { Category, Sequelize } = require("../../../models");
+const { initModels } = require("../../../models");
+const { Category, Sequelize } = initModels();
 
 /**
  * Repositório responsável pelo acesso a dados de categorias.

@@ -1,4 +1,5 @@
-const { Cart, CartItem, Product, ProductImage } = require("../../../models");
+const { initModels } = require("../../../models");
+const { Cart, CartItem, Product, ProductImage } = initModels();
 
 /**
  * Repositório responsável pelas operações de persistência do carrinho.
