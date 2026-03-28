@@ -58,8 +58,8 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: "http://localhost:3000",
-      description: "Servidor local",
+      url: process.env.API_URL || "http://localhost:3000",
+      description: "Servidor Principal",
     },
   ],
   components: {

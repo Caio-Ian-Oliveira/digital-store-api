@@ -6,7 +6,10 @@ const swaggerSpec = require("./config/swagger");
 const { globalLimiter } = require("./config/rate-limit.config");
 
 const corsOptions = {
-  origin: ["http://localhost:5173", "http://localhost:5174"],
+  origin: [
+    process.env.FRONTEND_URL,
+    process.env.ADMIN_URL
+  ].filter(Boolean),
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
 };
@@ -21,7 +24,11 @@ const cartRoutes = require("./modules/cart/routes/cart.routes");
 const orderRoutes = require("./modules/order/routes/order.routes");
 
 app.use(express.json());
-app.use(cookieParser()); // Limite de Taxa Global
+app.use(cookieParser());
+
+// Extremamente importante para produção (Vercel, Railway, AWS):
+// Avisa o Express que ele está atrás de um proxy, para o Rate Limit ver o IP real do usuário.
+app.set("trust proxy", 1); 
 app.use(globalLimiter);
 
 // Rota da documentação Swagger
