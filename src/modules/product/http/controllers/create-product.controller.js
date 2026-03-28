@@ -77,7 +77,33 @@ const CreateProductResponseDto = require("../dto/response/create-product.respons
  *       201:
  *         description: Produto criado com sucesso
  *       400:
- *         description: Erro de validação
+ *         description: Erro de validação ou conflito de dados
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: fail
+ *                 message:
+ *                   type: string
+ *                   example: "Erro de validação: conflito de dados."
+ *                 errors:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       field:
+ *                         type: string
+ *                         example: slug
+ *                       message:
+ *                         type: string
+ *                         example: Este slug já está em uso.
+ *       401:
+ *         description: Não autenticado
+ *       403:
+ *         description: Sem permissão (apenas ADMIN)
  */
 
 /**

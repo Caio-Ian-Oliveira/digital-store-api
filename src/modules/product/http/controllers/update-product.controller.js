@@ -81,7 +81,29 @@ const UpdateProductService = require("../../core/services/update-product.service
  *       200:
  *         description: Produto atualizado com sucesso
  *       400:
- *         description: Erro de validação
+ *         description: Erro de validação ou conflito de dados (duplicidade)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: fail
+ *                 message:
+ *                   type: string
+ *                   example: "Erro de validação: conflito de dados na atualização."
+ *                 errors:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       field:
+ *                         type: string
+ *                         example: name
+ *                       message:
+ *                         type: string
+ *                         example: Este nome de produto já está em uso por outro produto.
  *       401:
  *         description: Token não fornecido ou inválido
  *       403:
