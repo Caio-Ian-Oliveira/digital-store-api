@@ -1,5 +1,6 @@
 const AppError = require("../../../shared/errors/app-error");
-const { Order, OrderItem, Cart, CartItem, Product, sequelize } = require("../../../models");
+const { initModels } = require("../../../models");
+const { Order, OrderItem, Cart, CartItem, Product, sequelize } = initModels();
 
 /**
  * Repositório responsável por operações complexas envolvendo pedidos (Checkout).
@@ -137,7 +138,7 @@ class OrderRepository {
           as: "items",
         },
         {
-          model: require("../../../models").User,
+          model: initModels().User,
           as: "user",
           attributes: ["firstname", "surname", "email"]
         }

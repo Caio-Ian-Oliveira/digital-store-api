@@ -1,6 +1,7 @@
 const AppError = require("../../../../shared/errors/app-error");
 const CartRepository = require("../../persistence/cart.repository");
-const { Product } = require("../../../../models");
+const { initModels } = require("../../../../models");
+const { Product } = initModels();
 
 /**
  * Serviço responsável por adicionar produtos ao carrinho.

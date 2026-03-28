@@ -1,4 +1,5 @@
-const { Product, ProductImage, ProductOption, Category, sequelize, Sequelize } = require("../../../models/");
+const { initModels } = require("../../../models/");
+const { Product, ProductImage, ProductOption, Category, sequelize, Sequelize } = initModels();
 
 /**
  * Repositório responsável pelo acesso a dados de produtos.
@@ -196,7 +197,7 @@ class ProductRepository {
     // 3.3 Faixa de preço
     if (priceRange) {
       const [min, max] = priceRange.split("-").map(Number);
-      if (!isNaN(min) && !isNaN(max)) {
+      if (!Number.isNaN(min) && !Number.isNaN(max)) {
         queryOptions.where.price = { [Sequelize.Op.between]: [min, max] };
       }
     }

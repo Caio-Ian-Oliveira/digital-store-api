@@ -1,4 +1,5 @@
-const { User, UserAddress, sequelize } = require("../../../models");
+const { initModels } = require("../../../models");
+const { User, UserAddress, sequelize } = initModels();
 
 /**
  * Repositório responsável por todas as operações de acesso a dados de Usuário.
