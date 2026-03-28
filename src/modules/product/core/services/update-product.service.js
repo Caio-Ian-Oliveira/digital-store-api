@@ -30,6 +30,28 @@ class UpdateProductService {
       throw new AppError("Recurso não encontrado.", 404);
     }
 
+    // Verifica se o novo nome ou slug já existe em OUTRO produto
+    if (body.name || body.slug) {
+      const duplicate = await ProductRepository.findDuplicateExcludingId(
+        body.name || targetProduct.name,
+        body.slug || targetProduct.slug,
+        targetProductId,
+      );
+
+      if (duplicate) {
+        const errors = [];
+        if (body.name && duplicate.name === body.name) {
+          errors.push({ field: "name", message: "Este nome de produto já está em uso por outro produto." });
+        }
+        if (body.slug && duplicate.slug === body.slug) {
+          errors.push({ field: "slug", message: "Este slug já está em uso por outro produto." });
+        }
+        if (errors.length > 0) {
+          throw new AppError("Erro de validação: conflito de dados na atualização.", 400, errors);
+        }
+      }
+    }
+
     // Processa imagens: se o front mandar {type, content}, extraímos apenas o content (URL)
     if (body.images && body.images.length > 0) {
       body.images = body.images.map((img) => img.content);

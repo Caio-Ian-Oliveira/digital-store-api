@@ -21,6 +21,24 @@ class ProductRepository {
   }
 
   /**
+   * Busca duplicata de nome ou slug, excluindo um ID específico.
+   * @param {string} name - Nome do produto.
+   * @param {string} slug - Slug do produto.
+   * @param {number} excludeId - ID a ser excluído da busca.
+   * @returns {Promise<Object|null>} O produto encontrado ou null.
+   */
+  async findDuplicateExcludingId(name, slug, excludeId) {
+    return await Product.findOne({
+      where: {
+        [Sequelize.Op.and]: [
+          { id: { [Sequelize.Op.ne]: excludeId } },
+          { [Sequelize.Op.or]: [{ name: name || null }, { slug: slug || null }] },
+        ],
+      },
+    });
+  }
+
+  /**
    * Cria um novo produto com imagens, opções e categorias em uma transação atômica.
    * @param {Object} params - Dados de criação.
    * @param {Object} params.productData - Dados básicos do produto.

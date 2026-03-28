@@ -244,7 +244,7 @@ describe("Create Product - Integration Tests", () => {
     const response = await request(app).post("/v1/product").set("Cookie", createTestCookie(token)).send(payload);
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toMatch(/já existe/i);
+    expect(response.body.message).toMatch(/conflito de dados/i);
   });
 
   it("POST /v1/product - Deve retornar 400 se name já existir (duplicado)", async () => {
@@ -262,7 +262,7 @@ describe("Create Product - Integration Tests", () => {
       .send(duplicateNameData);
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toMatch(/já existe/i);
+    expect(response.body.message).toMatch(/conflito de dados/i);
   });
 
   it("POST /v1/product - Deve retornar 400 se category_ids contiver UUID inválido (não existe)", async () => {

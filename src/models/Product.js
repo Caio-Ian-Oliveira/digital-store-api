@@ -96,10 +96,12 @@ module.exports = (sequelize) => {
       name: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
       },
       slug: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
       },
       use_in_menu: {
         type: DataTypes.BOOLEAN,
