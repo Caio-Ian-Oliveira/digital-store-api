@@ -68,6 +68,6 @@ router.patch(
   updateUserValidator,
   asyncHandler(UpdateUserController.handle),
 );
-router.delete("/v1/user/:id", authVerificationMiddleware, asyncHandler(DeleteUserController.handle));
+router.delete("/v1/user/:id", authVerificationMiddleware, roleGuardMiddleware.handle(["ADMIN"]), asyncHandler(DeleteUserController.handle));
 
 module.exports = router;
