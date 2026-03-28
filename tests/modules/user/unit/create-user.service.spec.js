@@ -95,7 +95,7 @@ describe("CreateUserService - Unit Tests", () => {
 
       userRepository.findByEmail.mockResolvedValue(existingUser);
 
-      await expect(createUserService.execute(validUserData)).rejects.toThrow("Este usuário já está cadastrado.");
+      await expect(createUserService.execute(validUserData)).rejects.toThrow("Erro de cadastro: e-mail já em uso.");
 
       expect(userRepository.findByEmail).toHaveBeenCalledWith(validUserData.email);
       expect(userRepository.create).not.toHaveBeenCalled();
