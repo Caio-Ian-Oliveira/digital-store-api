@@ -163,6 +163,8 @@ Crie um arquivo `.env` na raiz do projeto contendo as seguintes variáveis:
 |----------|-------------|-----------|
 | `PORT` | Não | Porta em que o servidor Express irá rodar (Padrão: 3000) |
 | `NODE_ENV` | Não | Ambiente de execução (`development`, `test`, `production`) |
+| `FRONTEND_URL` | Sim | URL do front-end principal para liberação de CORS (ex: `http://localhost:5173` ou `https://producao.com`) |
+| `ADMIN_URL` | Sim | URL do painel administrativo para liberação de CORS (ex: `http://localhost:5174`) |
 | `DB_USER` | Sim | Usuário do MySQL (ex: `usuario_app`) |
 | `DB_PASSWORD` | Sim | Senha do banco MySQL (ex: `senha_app`) |
 | `DB_NAME` | Sim | Nome do banco principal (ex: `digital_store_db`) |
