@@ -236,14 +236,14 @@ A documentação Swagger inclui:
 
 | Módulo | Descrição | Endpoints |
 |--------|-----------|-----------|
-| **👤 Usuários & Autenticação** | Login, registro, gerenciamento de perfil | 6 rotas |
+| **👤 Usuários & Autenticação** | Login, registro, gerenciamento de perfil e admin | 10 rotas |
 | **🗂 Categorias** | Categorização de produtos | 5 rotas |
 | **📦 Produtos** | Gestão de inventário, busca, upload de imagens | 6 rotas |
 | **🛒 Carrinho** | Operações do carrinho de compras | 5 rotas |
-| **🚚 Pedidos** | Checkout e histórico de pedidos | 5 rotas |
+| **🚚 Pedidos** | Checkout e histórico de pedidos (Cliente & Admin) | 5 rotas |
 | **🌐 Sistema** | Health check e login administrativo | 2 rotas |
 
-> **💡 Dica:** Utilize a interface Swagger para explorar e testar todos os **29 endpoints** disponíveis na API.
+> **💡 Dica:** Utilize a interface Swagger para explorar e testar todos os **33 endpoints** disponíveis na API.
 
 ---
 
@@ -294,6 +294,7 @@ erDiagram
         string description
         float price
         float price_with_discount
+        int display_order
     }
 
     product_image {
@@ -393,17 +394,31 @@ erDiagram
 
 ## Tratamento de Erros
 
-A API possui uma **estratégia global e unificada** via Middleware (`error-handler`).
+A API possui uma **estratégia global e unificada** via Middleware (`error-handler`) para garantir que todas as respostas de erro sigam o mesmo padrão JSON, facilitando a vida do Front-end.
 
-- Em Serviços, classes de exceção especializadas como Entidades Not-Found explodem erros conhecidos (ou status HTTP diretamente) que bolham à Camada do Express.
-- Zod Validators devolvem padronizados e interceptados o status Rest API apropriado: `400 Bad Request` com Field/Messages mapeados.
-- Se fora de Contexto Seguro: `500 Server Error Internal` é devolvido blindando detalhes ocultos/internos na versão Prod (StackTraces somem de res).
-- **Códigos Comuns:**
-  - `400`: Payload falhou validações Zod ou falha lógica Negócio.
-  - `401`: JWT Ausente/Expirou.
-  - `403`: Papel (Role) Sem Acesso Privilegiado.
-  - `404`: UUID não constam do Banco na Tabela informada.
-  - `409`: Violação Unique Constraint (Emails duplicados / Slugs Indisponíveis).
+### Estrutura de Resposta de Erro
+Todas as respostas de falha seguem este formato:
+```json
+{
+  "status": "fail",
+  "message": "Mensagem descritiva do erro",
+  "errors": [
+     { "field": "nome_do_campo", "message": "motivo específico" }
+  ]
+}
+```
+
+- Em Serviços, classes de exceção especializadas como `AppError` disparam erros conhecidos que o Global Handler captura.
+- **Validações Zod**: Retornam `400 Bad Request` com a lista detalhada de campos inválidos no array `errors`.
+- **Conflitos de Dados**: Erros de duplicidade (e-mail, slug, nome) agora também retornam o campo específico que causou o conflito.
+- **Blindagem em Produção**: Fora de ambiente `development`, os StackTraces são omitidos das respostas por segurança.
+
+### Códigos Comuns:
+- `400`: Payload inválido ou falha na regra de negócio (ex: conflito de dados).
+- `401`: Credenciais ausentes ou token JWT inválido/expirado.
+- `403`: Acesso negado (usuário não possui o papel ADMIN necessário).
+- `404`: Recurso não encontrado (ID inexistente ou deletado).
+- `422`: Entidade não processável (ex: finalizar checkout com carrinho vazio).
 
 ---
 

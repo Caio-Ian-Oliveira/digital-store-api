@@ -161,7 +161,17 @@ const CreateOrderService = require("../../core/services/create-order.service");
  *         description: Carrinho vazio ou produtos indisponíveis
  */
 
+/**
+ * Controller responsável pelo processamento do checkout de pedidos.
+ * Gerencia a conversão de um carrinho ativo em um pedido finalizado.
+ */
 class CreateOrderController {
+  /**
+   * Processa a requisição POST /v1/orders.
+   * @param {import('express').Request} req - Objeto de requisição Express.
+   * @param {import('express').Response} res - Objeto de resposta Express.
+   * @returns {Promise<void>}
+   */
   async handle(req, res) {
     // Controller lida com input/output via HTTP
     const userId = req.user.sub;
