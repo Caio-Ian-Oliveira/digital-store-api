@@ -33,7 +33,9 @@ class CreateUserService {
 
     const userExists = await userRepository.findByEmail(email);
     if (userExists) {
-      throw new AppError("Este usuário já está cadastrado.", 400);
+      throw new AppError("Erro de cadastro: e-mail já em uso.", 400, [
+        { field: "email", message: "Este endereço de e-mail já está cadastrado." },
+      ]);
     }
 
     const addressData = endereco ? { endereco, bairro, cidade, estado, cep, complemento } : null;

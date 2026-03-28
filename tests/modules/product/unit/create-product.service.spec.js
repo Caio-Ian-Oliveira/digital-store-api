@@ -63,9 +63,8 @@ describe("CreateProductService - Unit Tests", () => {
       productRepository.findByNameOrSlug.mockResolvedValue(existingProduct);
 
       await expect(createProductService.execute(validProductData)).rejects.toThrow(
-        "Produto já existe (nome ou slug duplicado)",
+        "Erro de validação: conflito de dados.",
       );
-
       expect(productRepository.findByNameOrSlug).toHaveBeenCalled();
       expect(categoryRepository.findByIds).not.toHaveBeenCalled();
       expect(productRepository.createProduct).not.toHaveBeenCalled();
@@ -81,7 +80,7 @@ describe("CreateProductService - Unit Tests", () => {
       productRepository.findByNameOrSlug.mockResolvedValue(existingProduct);
 
       await expect(createProductService.execute(validProductData)).rejects.toThrow(
-        "Produto já existe (nome ou slug duplicado)",
+        "Erro de validação: conflito de dados.",
       );
 
       expect(productRepository.createProduct).not.toHaveBeenCalled();

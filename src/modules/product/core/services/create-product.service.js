@@ -51,7 +51,14 @@ class CreateProductService {
     const existing = await ProductRepository.findByNameOrSlug(productData.name, productData.slug);
 
     if (existing) {
-      throw new AppError("Produto já existe (nome ou slug duplicado)", 400);
+      const errors = [];
+      if (existing.name === productData.name) {
+        errors.push({ field: "name", message: "Este nome de produto já está em uso." });
+      }
+      if (existing.slug === productData.slug) {
+        errors.push({ field: "slug", message: "Este slug já está em uso." });
+      }
+      throw new AppError("Erro de validação: conflito de dados.", 400, errors);
     }
 
     if (category_ids.length > 0) {
