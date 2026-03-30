@@ -53,12 +53,10 @@ class AdminLoginController {
 
     const result = await AdminLoginService.execute({ email, password });
 
-    const isProduction = process.env.NODE_ENV === "production";
-
     res.cookie("access_token", result.token, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 24, // 24 horas
     });
 
